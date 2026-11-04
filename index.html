@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mini Google 1998 &#x1F310;</title>
+<style>
+
+/* ═══════ RESET & BASE ═══════ */
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --blue:#4285F4;--red:#EA4335;--yellow:#FBBC05;--green:#34A853;
+  --bg1:#0a0a1a;--bg2:#0d1035;--card:#ffffff0d;--glass:#ffffff15;
+  --border:#ffffff20;--text:#e8eaf6;--dim:#9fa8da;
+}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Segoe UI',Arial,sans-serif;
+  background:var(--bg1);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ═══════ ANIMATED PARTICLE CANVAS (background) ═══════ */
+#bgCanvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:0;pointer-events:none;
+}
+
+/* ═══════ MAIN WRAPPER ═══════ */
+#app{position:relative;z-index:1;padding:0 16px 60px;}
+
+/* ═══════ HEADER / LOGO ═══════ */
+.header{text-align:center;padding:48px 0 20px;}
+.logo{
+  font-size:clamp(36px,7vw,72px);
+  font-weight:900;letter-spacing:-2px;
+  line-height:1;margin-bottom:6px;
+  text-shadow:0 0 40px #4285F488;
+  animation:logoPulse 3s ease-in-out infinite;
+}
+@keyframes logoPulse{0%,100%{text-shadow:0 0 40px #4285F488;}50%{text-shadow:0 0 80px #4285F4cc,0 0 120px #EA433544;}}
+.logo .L1{color:#4285F4;} .logo .L2{color:#EA4335;} .logo .L3{color:#FBBC05;}
+.logo .L4{color:#4285F4;} .logo .L5{color:#34A853;} .logo .L6{color:#EA4335;}
+.logo .L7{color:#4285F4;} .logo .L8{color:#FBBC05;} .logo .L9{color:#34A853;}
+.logo .L10{color:#EA4335;} .logo .L11{color:#4285F4;} .logo .L12{color:#34A853;}
+.logo .L13{color:#EA4335;}
+
+.tagline{font-size:13px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+
+.live-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#34A85322;border:1px solid #34A85366;
+  padding:4px 12px;border-radius:20px;font-size:12px;color:#34A853;
+}
+.pulse-dot{
+  width:8px;height:8px;border-radius:50%;background:#34A853;
+  animation:blink 1.2s ease-in-out infinite;
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+
+/* ═══════ SEARCH SECTION ═══════ */
+.search-wrap{
+  max-width:680px;margin:28px auto 0;
+  background:var(--glass);border:1px solid var(--border);
+  border-radius:24px;padding:24px 28px;
+  backdrop-filter:blur(12px);
+  box-shadow:0 8px 32px #0008;
+}
+.search-row{display:flex;gap:10px;margin-bottom:16px;}
+#searchBox{
+  flex:1;padding:14px 20px;font-size:17px;
+  background:#ffffff10;border:1.5px solid var(--border);
+  border-radius:50px;color:var(--text);outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+#searchBox::placeholder{color:#6673a5;}
+#searchBox:focus{border-color:var(--blue);box-shadow:0 0 0 3px #4285F430;}
+#searchBtn{
+  padding:14px 28px;font-size:15px;font-weight:700;
+  background:linear-gradient(135deg,#4285F4,#34A853);
+  color:#fff;border:none;border-radius:50px;cursor:pointer;
+  transition:transform 0.15s,box-shadow 0.15s;white-space:nowrap;
+}
+#searchBtn:hover{transform:translateY(-2px);box-shadow:0 6px 20px #4285F466;}
+
+.examples{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.ex-label{font-size:12px;color:var(--dim);margin-right:4px;}
+.ex-btn{
+  padding:6px 16px;font-size:13px;
+  background:#ffffff08;border:1px solid var(--border);
+  border-radius:20px;color:var(--dim);cursor:pointer;
+  transition:all 0.2s;
+}
+.ex-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue);}
+
+/* ═══════ STATS DASHBOARD ═══════ */
+.stats-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+  max-width:900px;margin:24px auto;
+}
+@media(max-width:600px){.stats-row{grid-template-columns:repeat(2,1fr);}}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:16px;text-align:center;
+  backdrop-filter:blur(8px);
+}
+.stat-icon{font-size:24px;margin-bottom:6px;}
+.stat-val{font-size:26px;font-weight:800;line-height:1;}
+.stat-label{font-size:11px;color:var(--dim);margin-top:4px;text-transform:uppercase;letter-spacing:1px;}
+.stat-val.blue{color:var(--blue);} .stat-val.red{color:var(--red);}
+.stat-val.green{color:var(--green);} .stat-val.yellow{color:var(--yellow);}
+
+/* ═══════ SURFER VISUALIZER PANEL ═══════ */
+.vis-panel{
+  max-width:900px;margin:0 auto 24px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:20px;overflow:hidden;backdrop-filter:blur(8px);
+}
+.vis-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;border-bottom:1px solid var(--border);
+}
+.vis-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.vis-controls{display:flex;align-items:center;gap:12px;}
+#surferBtn{
+  padding:7px 18px;font-size:13px;font-weight:700;
+  background:linear-gradient(135deg,var(--green),#1a6e30);
+  color:#fff;border:none;border-radius:20px;cursor:pointer;
+  transition:transform 0.15s;
+}
+#surferBtn:hover{transform:scale(1.05);}
+.vis-body{display:flex;gap:0;}
+#surferCanvas{width:520px;min-width:520px;height:300px;display:block;}
+@media(max-width:700px){#surferCanvas{min-width:100%;width:100%;}}
+
+.vis-side{
+  flex:1;padding:16px;border-left:1px solid var(--border);
+  display:flex;flex-direction:column;gap:10px;overflow:hidden;
+}
+.progress-wrap{margin-bottom:4px;}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-bottom:5px;}
+.progress-bar-bg{height:6px;background:#ffffff15;border-radius:4px;overflow:hidden;}
+.progress-bar-fill{
+  height:100%;background:linear-gradient(90deg,var(--blue),var(--green));
+  border-radius:4px;transition:width 0.1s;width:0%;
+}
+.current-visit{
+  font-size:11px;color:var(--dim);padding:8px 10px;
+  background:#ffffff08;border-radius:8px;
+}
+.current-visit strong{color:var(--text);display:block;font-size:12px;margin-bottom:2px;}
+
+.leaderboard-title{font-size:12px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+.lb-list{display:flex;flex-direction:column;gap:5px;}
+.lb-item{
+  display:flex;align-items:center;gap:8px;
+  padding:5px 8px;background:#ffffff08;border-radius:8px;font-size:11px;
+}
+.lb-rank{color:var(--yellow);font-weight:800;min-width:18px;}
+.lb-url{color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lb-score{color:var(--green);font-weight:700;min-width:36px;text-align:right;}
+.lb-bar-wrap{width:50px;height:4px;background:#ffffff15;border-radius:2px;}
+.lb-bar{height:100%;background:var(--green);border-radius:2px;transition:width 0.3s;}
+
+/* ═══════ INFO ROW ═══════ */
+.info-row{
+  max-width:900px;margin:0 auto 24px;
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+}
+@media(max-width:600px){.info-row{grid-template-columns:1fr;}}
+.info-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:18px 20px;backdrop-filter:blur(8px);
+}
+.info-card h3{font-size:13px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.fact-list{display:flex;flex-direction:column;gap:6px;}
+.fact-item{display:flex;justify-content:space-between;font-size:13px;padding:5px 8px;background:#ffffff06;border-radius:6px;}
+.fact-key{color:var(--dim);}
+.fact-val{font-weight:700;color:var(--text);}
+.topic-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;margin:2px;
+}
+.chip-pizza{background:#EA433322;color:#EA4335;border:1px solid #EA433344;}
+.chip-cricket{background:#34A85322;color:#34A853;border:1px solid #34A85344;}
+.chip-movie{background:#4285F422;color:#4285F4;border:1px solid #4285F444;}
+.chip-exam{background:#FBBC0522;color:#FBBC05;border:1px solid #FBBC0544;}
+.chip-other{background:#9fa8da22;color:#9fa8da;border:1px solid #9fa8da44;}
+
+/* ═══════ SEARCH RESULTS SECTION ═══════ */
+.results-section{max-width:1160px;margin:0 auto;}
+.results-meta{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;padding:0 4px;
+}
+.results-meta-txt{font-size:13px;color:var(--dim);}
+.results-meta-txt strong{color:var(--text);}
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:700px){.results-grid{grid-template-columns:1fr;}}
+.col-header{
+  display:flex;align-items:center;gap:10px;margin-bottom:14px;
+  padding:10px 16px;border-radius:12px;
+}
+.col-header.old{background:linear-gradient(135deg,#EA433522,#EA433511);border:1px solid #EA433333;}
+.col-header.surf{background:linear-gradient(135deg,#4285F422,#4285F411);border:1px solid #4285F433;}
+.col-header h2{font-size:15px;font-weight:700;}
+.col-header .badge{
+  margin-left:auto;font-size:11px;padding:2px 8px;border-radius:10px;
+  font-weight:700;
+}
+.badge-old{background:#EA433333;color:#EA4335;}
+.badge-surf{background:#4285F433;color:#4285F4;}
+
+/* ── Result Card ── */
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:14px 16px;margin-bottom:12px;
+  border-left:3px solid transparent;
+  transition:transform 0.2s,box-shadow 0.2s,border-color 0.2s;
+  animation:slideIn 0.3s ease both;
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 28px #00000066;}
+.card.old-card{border-left-color:#EA4335;}
+.card.surf-card{border-left-color:#4285F4;}
+
+.card-rank{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:4px;}
+.card-rank .gold{color:#FFD700;} .card-rank .silver{color:#C0C0C0;} .card-rank .bronze{color:#CD7F32;}
+
+.card-url{font-size:14px;font-weight:700;color:#82b1ff;margin-bottom:6px;word-break:break-all;display:flex;align-items:center;gap:6px;}
+.card-url-icon{font-size:12px;opacity:0.6;}
+
+.card-text{font-size:12.5px;color:#b0bec5;line-height:1.55;margin-bottom:10px;}
+.hl{background:#FBBC0544;color:#FBBC05;border-radius:3px;padding:0 3px;font-weight:700;}
+
+.card-footer{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.score-chip{
+  display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;
+  padding:3px 10px;border-radius:10px;
+}
+.score-chip.old-score{background:#EA433322;color:#EA4335;}
+.score-chip.surf-score{background:#34A85322;color:#34A853;}
+.meta-chip{
+  font-size:11px;color:var(--dim);
+  background:#ffffff08;padding:3px 8px;border-radius:8px;
+}
+
+/* Score bar */
+.score-bar-wrap{width:100%;height:4px;background:#ffffff10;border-radius:2px;margin-top:8px;}
+.score-bar{height:100%;border-radius:2px;transition:width 0.5s;}
+.score-bar.old-bar{background:linear-gradient(90deg,#EA4335,#FF6B6B);}
+.score-bar.surf-bar{background:linear-gradient(90deg,#4285F4,#34A853);}
+
+/* ── Empty / No results ── */
+.empty{
+  text-align:center;padding:60px 20px;font-size:16px;color:var(--dim);
+  grid-column:1/-1;
+}
+.empty-emoji{font-size:56px;display:block;margin-bottom:16px;}
+
+/* ═══════ EXPLAINER SECTION ═══════ */
+.explainer{
+  max-width:900px;margin:32px auto 0;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:28px 32px;backdrop-filter:blur(8px);
+}
+.explainer h2{font-size:18px;font-weight:800;margin-bottom:16px;color:var(--text);}
+.explainer-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:600px){.explainer-grid{grid-template-columns:1fr;}}
+.explain-box{padding:16px;background:#ffffff08;border-radius:12px;border-left:3px solid;}
+.explain-box.red{border-left-color:#EA4335;}
+.explain-box.blue{border-left-color:#4285F4;}
+.explain-box h3{font-size:14px;font-weight:700;margin-bottom:8px;}
+.explain-box p{font-size:13px;color:var(--dim);line-height:1.6;}
+.explain-box ul{padding-left:16px;font-size:13px;color:var(--dim);line-height:1.8;}
+
+/* ═══════ FOOTER ═══════ */
+.footer{text-align:center;padding:32px 16px 0;font-size:12px;color:#4a5280;}
+
+</style>
+</head>
+<body>
+
+<!-- ANIMATED PARTICLE BACKGROUND -->
+<canvas id="bgCanvas"></canvas>
+
+<div id="app">
+
+<!-- ════════════════════ HEADER ════════════════════ -->
+<div class="header">
+  <div class="logo">
+    <span class="L1">M</span><span class="L2">i</span><span class="L3">n</span><span class="L4">i</span>&nbsp;<span class="L5">G</span><span class="L6">o</span><span class="L7">o</span><span class="L8">g</span><span class="L9">l</span><span class="L10">e</span>&nbsp;<span class="L11">1</span><span class="L12">9</span><span class="L13">9</span><span class="L4">8</span>
+  </div>
+  <div class="tagline">AI Lab &bull; Search Engine Comparison</div>
+  <div class="live-badge">
+    <span class="pulse-dot"></span>
+    Live Random Surfer &bull; 1,000 Pages &bull; 100,000 Steps
+  </div>
+</div>
+
+<!-- ════════════════════ SEARCH ════════════════════ -->
+<div class="search-wrap">
+  <div class="search-row">
+    <input id="searchBox" type="text" placeholder="Search the mini web&hellip;" autocomplete="off">
+    <button id="searchBtn" onclick="doSearch()">&#128269; Search</button>
+  </div>
+  <div class="examples">
+    <span class="ex-label">Try:</span>
+    <button class="ex-btn" onclick="quickSearch('pizza')">&#127829; pizza</button>
+    <button class="ex-btn" onclick="quickSearch('cricket')">&#127955; cricket</button>
+    <button class="ex-btn" onclick="quickSearch('movie')">&#127916; movie</button>
+    <button class="ex-btn" onclick="quickSearch('exam')">&#128221; exam</button>
+    <button class="ex-btn" onclick="quickSearch('food')">&#127860; food</button>
+    <button class="ex-btn" onclick="quickSearch('health')">&#128138; health</button>
+  </div>
+</div>
+
+<!-- ════════════════════ STATS DASHBOARD ════════════════════ -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-icon">&#127760;</div>
+    <div class="stat-val blue">1,000</div>
+    <div class="stat-label">Pages Indexed</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">&#128279;</div>
+    <div class="stat-val yellow" id="statLinks">—</div>
+    <div class="stat-label">Total Links</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">&#127940;</div>
+    <div class="stat-val green" id="statSteps">0</div>
+    <div class="stat-label">Surfer Steps Done</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">&#128202;</div>
+    <div class="stat-val red" id="statMatched">—</div>
+    <div class="stat-label">Pages Matched</div>
+  </div>
+</div>
+
+<!-- ════════════════════ SURFER VISUALIZER ════════════════════ -->
+<div class="vis-panel">
+  <div class="vis-header">
+    <div class="vis-title">&#127313; Live Random Surfer Simulation</div>
+    <div class="vis-controls">
+      <span id="surferStatus" style="font-size:12px;color:var(--dim);">Initialising&hellip;</span>
+      <button id="surferBtn" onclick="startSurfer()">&#127940; Run Again</button>
+    </div>
+  </div>
+  <div class="vis-body">
+    <canvas id="surferCanvas" width="520" height="300"></canvas>
+    <div class="vis-side">
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Surfer Progress</span>
+          <span id="progPct">0%</span>
+        </div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progBar"></div></div>
+      </div>
+      <div class="current-visit">
+        <strong>Currently visiting:</strong>
+        <span id="curVisit">—</span>
+      </div>
+      <div class="leaderboard-title">&#127942; Top Pages (by visits)</div>
+      <div class="lb-list" id="lbList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ INFO ROW ════════════════════ -->
+<div class="info-row">
+  <div class="info-card">
+    <h3>&#127758; Topic Clusters</h3>
+    <div class="fact-list">
+      <div class="fact-item">
+        <span class="fact-key"><span class="topic-chip chip-pizza">&#127829; Pizza</span></span>
+        <span class="fact-val">86 pages</span>
+      </div>
+      <div class="fact-item">
+        <span class="fact-key"><span class="topic-chip chip-cricket">&#127955; Cricket</span></span>
+        <span class="fact-val">81 pages</span>
+      </div>
+      <div class="fact-item">
+        <span class="fact-key"><span class="topic-chip chip-movie">&#127916; Movie</span></span>
+        <span class="fact-val">81 pages</span>
+      </div>
+      <div class="fact-item">
+        <span class="fact-key"><span class="topic-chip chip-exam">&#128221; Exam</span></span>
+        <span class="fact-val">81 pages</span>
+      </div>
+      <div class="fact-item">
+        <span class="fact-key"><span class="topic-chip chip-other">&#127760; General</span></span>
+        <span class="fact-val">671 pages</span>
+      </div>
+    </div>
+  </div>
+  <div class="info-card">
+    <h3>&#129504; How Ranking Works</h3>
+    <div class="fact-list">
+      <div class="fact-item">
+        <span class="fact-key">Old way (1997)</span>
+        <span class="fact-val">Count words</span>
+      </div>
+      <div class="fact-item">
+        <span class="fact-key">New way (1998)</span>
+        <span class="fact-val">Follow links</span>
+      </div>
+      <div class="fact-item">
+        <span class="fact-key">Boredom rate</span>
+        <span class="fact-val">15%</span>
+      </div>
+      <div class="fact-item">
+        <span class="fact-key">Simulation steps</span>
+        <span class="fact-val">100,000</span>
+      </div>
+      <div class="fact-item">
+        <span class="fact-key">Result reproducible?</span>
+        <span class="fact-val">No &mdash; random!</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ RESULTS ════════════════════ -->
+<div class="results-section">
+  <div class="results-meta" id="resultsMeta" style="display:none;">
+    <div class="results-meta-txt" id="resultsMetaTxt"></div>
+  </div>
+  <div class="results-grid" id="results"></div>
+</div>
+
+<!-- ════════════════════ EXPLAINER ════════════════════ -->
+<div class="explainer">
+  <h2>&#128218; How do these two rankings differ?</h2>
+  <div class="explainer-grid">
+    <div class="explain-box red">
+      <h3>&#128220; The Old Way &mdash; 1997</h3>
+      <p>Early search engines counted how many times your search word appeared in a page. This was easy to <strong>spam</strong> &mdash; just repeat the word over and over to rank first.</p>
+      <ul>
+        <li>Simple word-frequency count</li>
+        <li>Spam pages like <em>pizza-pizza-pizza.com</em> win</li>
+        <li>Ignores link structure of the web</li>
+      </ul>
+    </div>
+    <div class="explain-box blue">
+      <h3>&#127940; The Surfer Way &mdash; 1998</h3>
+      <p>Imagine a person randomly clicking links, occasionally teleporting to a random page. Pages visited often are popular &amp; trustworthy. This became the seed of <strong>PageRank</strong>.</p>
+      <ul>
+        <li>Popularity = how often surfer lands here</li>
+        <li>Spam pages have no inbound links &rarr; low score</li>
+        <li>Well-connected hubs naturally rise to the top</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="footer">Mini Google 1998 &bull; AI Lab Demo &bull; Built with pure HTML + JS &bull; No server needed</div>
+
+</div><!-- end #app -->
+<script>
+// ═══════════════════════════════════════════════════════
+//  1,000 PAGE DATASET
+// ═══════════════════════════════════════════════════════
+const pages = [
+  {id:   1, url:'pune-food-guide.com', text:'Where to eat in Pune - vada pav and biryani and pizza', links:[2]},
+  {id:   2, url:'best-pizza-pune.com', text:'Fresh wood-fired pizza made daily - try our cheese pizza', links:[1,3]},
+  {id:   3, url:'college-canteen-blog.com', text:'Student reviews of canteen food and chai and Friday pizza', links:[2,4]},
+  {id:   4, url:'pizza-recipes-home.com', text:'Make pizza at home - pizza dough and pizza sauce', links:[2,5]},
+  {id:   5, url:'cheap-eats-pune.com', text:'Good food under 100 rupees - misal and dosa and pizza slices', links:[2]},
+  {id:   6, url:'pizza-pizza-pizza.com', text:'pizza pizza pizza pizza pizza pizza pizza pizza pizza pizza', links:[1]},
+  {id:   7, url:'cricket-live-scores.com', text:'Live cricket scores and ball by ball cricket updates', links:[8,10]},
+  {id:   8, url:'ipl-fan-club.in', text:'IPL fan chat - team news and cricket memes', links:[7,9]},
+  {id:   9, url:'school-cricket-coach.com', text:'Learn cricket batting and bowling with simple drills', links:[7,10]},
+  {id:  10, url:'cricket-history-india.com', text:'Great moments from the history of Indian cricket', links:[7]},
+  {id:  11, url:'cricket-cricket-cricket.com', text:'cricket cricket cricket cricket cricket cricket cricket cricket cricket cricket', links:[7]},
+  {id:  12, url:'bollywood-movie-reviews.in', text:'Honest reviews of every new Bollywood movie released on Friday', links:[13,15]},
+  {id:  13, url:'movie-ticket-offers.com', text:'Cheap movie tickets and weekend offers in Pune', links:[1,12]},
+  {id:  14, url:'film-club-college.com', text:'Our college film club watches one movie every week', links:[12,17]},
+  {id:  15, url:'classic-movie-songs.com', text:'Old movie songs and the stories behind each movie', links:[12,13,14]},
+  {id:  16, url:'free-movie-free-movie.com', text:'free movie free movie free movie free movie free movie movie movie movie movie movie', links:[12]},
+  {id:  17, url:'exam-tips-for-students.com', text:'Smart exam tips - sleep well and practise old exam papers', links:[3,18]},
+  {id:  18, url:'college-notes-share.com', text:'Share class notes with friends before the exam', links:[17,19]},
+  {id:  19, url:'pune-college-news.in', text:'News from Pune colleges - fest dates and exam timetables and cricket matches', links:[1,7,12,17]},
+  {id:  20, url:'exam-exam-exam.com', text:'exam exam exam exam exam exam exam exam exam exam', links:[17]},
+  {id:  21, url:'best-pizza.in', text:'Veggie pizza lovers guide to the best plant-based toppings - also try our pizza slices', links:[5,97]},
+  {id:  22, url:'pizza-top-blog.in', text:'Try our fresh wood-fired pizza made fresh every morning - also try our pizza slices', links:[5,91]},
+  {id:  23, url:'pizza-local-blog.in', text:'Best pizza toppings ranked by our food critics', links:[2,76]},
+  {id:  24, url:'order-pizza-36.com', text:'Our cheese pizza is made with the finest ingredients - also try our pizza slices', links:[3,67]},
+  {id:  25, url:'order-pizza-78.com', text:'Pizza night ideas for the whole family to enjoy', links:[2,32,92]},
+  {id:  26, url:'patna-best-pizza.in', text:'Pizza and pasta combo deals at our Patna restaurant', links:[4,27,30]},
+  {id:  27, url:'pizza-amazing-recipes.com', text:'Order hot pizza online and get delivery in 30 minutes - also try our pizza pockets', links:[3,42,68]},
+  {id:  28, url:'order-pizza-46.com', text:'Classic Margherita pizza topped with basil and mozzarella', links:[2,43,90]},
+  {id:  29, url:'pizza-cool-recipes.com', text:'Best pizza toppings ranked by our food critics', links:[5,63]},
+  {id:  30, url:'chennai-pizza-corner.com', text:'Gluten-free pizza options now available at select stores - also try our pizza pockets', links:[2,94]},
+  {id:  31, url:'order-pizza-28.com', text:'Pizza and pasta combo deals at our Ahmedabad restaurant', links:[3,55]},
+  {id:  32, url:'pizza-local-indore.com', text:'Authentic Italian pizza recipe adapted for Indian kitchens', links:[3,68,73]},
+  {id:  33, url:'pizza-hot-recipes.com', text:'Authentic Italian pizza recipe adapted for Indian kitchens', links:[2,42]},
+  {id:  34, url:'pizza-fine-blog.in', text:'Order hot pizza online and get delivery in 30 minutes', links:[3,54,92]},
+  {id:  35, url:'nagpur-pizza-corner.com', text:'Veggie pizza lovers guide to the best plant-based toppings', links:[1,36,65]},
+  {id:  36, url:'ahmedabad-best-pizza.in', text:'Our cheese pizza is made with the finest ingredients', links:[1,44,86]},
+  {id:  37, url:'amazing-pizza.in', text:'Gluten-free pizza options now available at select stores - also try our pizza pockets', links:[4,21,89]},
+  {id:  38, url:'order-pizza-63.com', text:'Try our crispy wood-fired pizza made fresh every morning', links:[1,28]},
+  {id:  39, url:'pizza-new-recipes.com', text:'Order hot pizza online and get delivery in 30 minutes', links:[2,37,82]},
+  {id:  40, url:'pizza-great-lucknow.com', text:'Gluten-free pizza options now available at select stores', links:[5,47,61]},
+  {id:  41, url:'pizza-smart-blog.in', text:'Best pizza toppings ranked by our food critics - also try our pizza rolls', links:[2,23,97]},
+  {id:  42, url:'pizza-new-recipes.com', text:'Classic Margherita pizza topped with basil and mozzarella', links:[2,29]},
+  {id:  43, url:'patna-pizza-corner.com', text:'From thin crust to deep dish - we have every pizza style - also try our pizza boxes', links:[4,37,95]},
+  {id:  44, url:'crust-and-cheese-16.com', text:'Pizza sauce recipe from scratch using fresh tomatoes', links:[2,77]},
+  {id:  45, url:'order-pizza-55.com', text:'The secret to a perfect pizza dough revealed', links:[2,73]},
+  {id:  46, url:'order-pizza-14.com', text:'Classic Margherita pizza topped with basil and mozzarella', links:[4,44,57]},
+  {id:  47, url:'crust-and-cheese-16.com', text:'Gluten-free pizza options now available at select stores', links:[5,27]},
+  {id:  48, url:'delhi-pizza-corner.com', text:'Five-cheese pizza that will blow your mind', links:[3,73]},
+  {id:  49, url:'bangalore-pizza-corner.com', text:'The secret to a perfect pizza dough revealed - also try our pizza boxes', links:[1,84,93]},
+  {id:  50, url:'pizza-quick-hyderabad.com', text:'Classic Margherita pizza topped with basil and mozzarella', links:[2,28,62]},
+  {id:  51, url:'surat-pizza-corner.com', text:'Best pizza toppings ranked by our food critics', links:[2,31,44]},
+  {id:  52, url:'fine-pizza.in', text:'Order hot pizza online and get delivery in 30 minutes - also try our pizza rolls', links:[5,26,31]},
+  {id:  53, url:'pizza-new-blog.in', text:'Weekend pizza party guide with easy homemade pizza tips', links:[4,51,62]},
+  {id:  54, url:'ahmedabad-best-pizza.in', text:'Our cheese pizza is made with the finest ingredients - also try our pizza slices', links:[2,33,94]},
+  {id:  55, url:'open-pizza.in', text:'Classic Margherita pizza topped with basil and mozzarella - also try our pizza pockets', links:[2,69]},
+  {id:  56, url:'bangalore-best-pizza.in', text:'Best pizza toppings ranked by our food critics - also try our pizza slices', links:[5,34,38]},
+  {id:  57, url:'delhi-best-pizza.in', text:'Five-cheese pizza that will blow your mind', links:[1,47,99]},
+  {id:  58, url:'order-pizza-27.com', text:'Pizza and pasta combo deals at our Lucknow restaurant', links:[2,76]},
+  {id:  59, url:'mumbai-best-pizza.in', text:'Try our super wood-fired pizza made fresh every morning - also try our pizza pockets', links:[4,78,92]},
+  {id:  60, url:'pizza-open-blog.in', text:'Try our crispy wood-fired pizza made fresh every morning', links:[4,25,69]},
+  {id:  61, url:'pizza-tasty-bangalore.com', text:'Try our amazing wood-fired pizza made fresh every morning', links:[2,47,52]},
+  {id:  62, url:'smart-pizza.in', text:'Pizza sauce recipe from scratch using fresh tomatoes', links:[5,40,51]},
+  {id:  63, url:'pizza-cool-ahmedabad.com', text:'Try our cool wood-fired pizza made fresh every morning', links:[3,52,55]},
+  {id:  64, url:'pizza-crispy-ahmedabad.com', text:'Gluten-free pizza options now available at select stores', links:[4,60,66]},
+  {id:  65, url:'pizza-local-recipes.com', text:'Try our quick wood-fired pizza made fresh every morning - also try our pizza slices', links:[1,73,87]},
+  {id:  66, url:'order-pizza-4.com', text:'Order hot pizza online and get delivery in 30 minutes', links:[1,34]},
+  {id:  67, url:'pizza-smart-blog.in', text:'Veggie pizza lovers guide to the best plant-based toppings', links:[5,71]},
+  {id:  68, url:'pizza-great-recipes.com', text:'Try our tasty wood-fired pizza made fresh every morning', links:[5,46,67]},
+  {id:  69, url:'pizza-fresh-blog.in', text:'Pizza and pasta combo deals at our Surat restaurant - also try our pizza slices', links:[1,60,74]},
+  {id:  70, url:'order-pizza-52.com', text:'Veggie pizza lovers guide to the best plant-based toppings - also try our pizza boxes', links:[3,43,100]},
+  {id:  71, url:'ahmedabad-best-pizza.in', text:'Authentic Italian pizza recipe adapted for Indian kitchens - also try our pizza boxes', links:[5,62,81]},
+  {id:  72, url:'crust-and-cheese-29.com', text:'Pizza and pasta combo deals at our Lucknow restaurant', links:[4,31,57]},
+  {id:  73, url:'order-pizza-12.com', text:'Gluten-free pizza options now available at select stores - also try our pizza rolls', links:[4,26]},
+  {id:  74, url:'pizza-true-recipes.com', text:'Weekend pizza party guide with easy homemade pizza tips', links:[5,70]},
+  {id:  75, url:'crust-and-cheese-26.com', text:'Classic Margherita pizza topped with basil and mozzarella', links:[2,43,49]},
+  {id:  76, url:'crust-and-cheese-4.com', text:'Authentic Italian pizza recipe adapted for Indian kitchens - also try our pizza rolls', links:[3,89,93]},
+  {id:  77, url:'order-pizza-97.com', text:'Five-cheese pizza that will blow your mind', links:[5,79,92]},
+  {id:  78, url:'pizza-true-jaipur.com', text:'Pizza night ideas for the whole family to enjoy', links:[5,51,56]},
+  {id:  79, url:'crust-and-cheese-5.com', text:'Veggie pizza lovers guide to the best plant-based toppings - also try our pizza pockets', links:[5,38]},
+  {id:  80, url:'pizza-local-ahmedabad.com', text:'Veggie pizza lovers guide to the best plant-based toppings - also try our pizza boxes', links:[3,81,91]},
+  {id:  81, url:'pizza-top-blog.in', text:'Classic Margherita pizza topped with basil and mozzarella', links:[5,23,95]},
+  {id:  82, url:'pizza-true-blog.in', text:'Try our smart wood-fired pizza made fresh every morning', links:[3,91,99]},
+  {id:  83, url:'pizza-true-recipes.com', text:'Classic Margherita pizza topped with basil and mozzarella', links:[3,42,72]},
+  {id:  84, url:'crust-and-cheese-9.com', text:'Weekend pizza party guide with easy homemade pizza tips', links:[5,24,31]},
+  {id:  85, url:'pizza-hot-blog.in', text:'Gluten-free pizza options now available at select stores - also try our pizza boxes', links:[1,79]},
+  {id:  86, url:'order-pizza-44.com', text:'Pizza sauce recipe from scratch using fresh tomatoes', links:[3,31,81]},
+  {id:  87, url:'indore-pizza-corner.com', text:'Authentic Italian pizza recipe adapted for Indian kitchens - also try our pizza slices', links:[2,52]},
+  {id:  88, url:'pizza-best-recipes.com', text:'Weekend pizza party guide with easy homemade pizza tips - also try our pizza slices', links:[5,80]},
+  {id:  89, url:'bhopal-best-pizza.in', text:'From thin crust to deep dish - we have every pizza style', links:[2,60]},
+  {id:  90, url:'new-pizza.in', text:'Try our amazing wood-fired pizza made fresh every morning', links:[3,30,46]},
+  {id:  91, url:'pizza-crispy-recipes.com', text:'Veggie pizza lovers guide to the best plant-based toppings', links:[2,26,65]},
+  {id:  92, url:'pizza-smart-blog.in', text:'Order hot pizza online and get delivery in 30 minutes - also try our pizza boxes', links:[3,76]},
+  {id:  93, url:'order-pizza-82.com', text:'Five-cheese pizza that will blow your mind - also try our pizza rolls', links:[5,55,100]},
+  {id:  94, url:'crust-and-cheese-30.com', text:'The secret to a perfect pizza dough revealed - also try our pizza rolls', links:[2,52,78]},
+  {id:  95, url:'crust-and-cheese-37.com', text:'Weekend pizza party guide with easy homemade pizza tips - also try our pizza pockets', links:[4,48,66]},
+  {id:  96, url:'kolkata-best-pizza.in', text:'Pizza night ideas for the whole family to enjoy', links:[5,87]},
+  {id:  97, url:'pizza-fresh-recipes.com', text:'Classic Margherita pizza topped with basil and mozzarella', links:[4,81,83]},
+  {id:  98, url:'crust-and-cheese-2.com', text:'Order hot pizza online and get delivery in 30 minutes', links:[4,68,95]},
+  {id:  99, url:'crust-and-cheese-36.com', text:'Authentic Italian pizza recipe adapted for Indian kitchens', links:[5,66,79]},
+  {id: 100, url:'hyderabad-best-pizza.in', text:'Pizza night ideas for the whole family to enjoy', links:[1,89]},
+  {id: 101, url:'cool-cricket-blog.in', text:'Top cricket players of all time ranked by experts', links:[8,126]},
+  {id: 102, url:'ipl-local-2020.com', text:'Learn the basics of cricket batting with our guide', links:[9,107,108]},
+  {id: 103, url:'hyderabad-cricket-academy.com', text:'Women cricket league updates and player profiles', links:[10,102]},
+  {id: 104, url:'hyderabad-cricket-academy.com', text:'How to bowl a perfect cricket delivery - video guide', links:[7,116,163]},
+  {id: 105, url:'fresh-cricket-blog.in', text:'Best cricket academies in Delhi to join this year', links:[7,121]},
+  {id: 106, url:'new-cricket-blog.in', text:'Cricket coaching tips for young players under 18 - cricket updates', links:[9,158,159]},
+  {id: 107, url:'ipl-new-2021.com', text:'Cricket coaching tips for young players under 18 - cricket stats', links:[9,135]},
+  {id: 108, url:'t20-cricket-11.com', text:'Learn the basics of cricket batting with our guide', links:[9,154]},
+  {id: 109, url:'cricket-fine-fan.in', text:'How to bowl a perfect cricket delivery - video guide - cricket news', links:[10,131]},
+  {id: 110, url:'ipl-new-2023.com', text:'Cricket fitness drills to improve your game fast - cricket fans', links:[9,111,120]},
+  {id: 111, url:'bangalore-cricket-club.com', text:'Cricket fitness drills to improve your game fast', links:[8,117,161]},
+  {id: 112, url:'t20-cricket-39.com', text:'Women cricket league updates and player profiles', links:[10,111,178]},
+  {id: 113, url:'ahmedabad-cricket-club.com', text:'Women cricket league updates and player profiles - cricket stats', links:[9,136]},
+  {id: 114, url:'mumbai-cricket-academy.com', text:'Cricket fitness drills to improve your game fast', links:[10,125,176]},
+  {id: 115, url:'cricket-true-fan.in', text:'IPL cricket highlights and match analysis every day', links:[8,122]},
+  {id: 116, url:'ipl-tasty-2023.com', text:'How to bowl a perfect cricket delivery - video guide', links:[7,112,142]},
+  {id: 117, url:'ipl-super-2018.com', text:'Cricket fitness drills to improve your game fast', links:[7,107,154]},
+  {id: 118, url:'pure-cricket-news.in', text:'India cricket team schedule and upcoming matches', links:[10,128]},
+  {id: 119, url:'ipl-open-2019.com', text:'Behind the scenes of a professional cricket training camp', links:[10,104]},
+  {id: 120, url:'t20-cricket-78.com', text:'Cricket fitness drills to improve your game fast - cricket records', links:[7,112,130]},
+  {id: 121, url:'crispy-cricket-blog.in', text:'How to bowl a perfect cricket delivery - video guide', links:[10,136,167]},
+  {id: 122, url:'cricket-true-fan.in', text:'How to bowl a perfect cricket delivery - video guide', links:[10,178]},
+  {id: 123, url:'indore-cricket-academy.com', text:'Behind the scenes of a professional cricket training camp - cricket updates', links:[8,101,138]},
+  {id: 124, url:'t20-cricket-39.com', text:'Cricket pitch conditions and how they affect the match', links:[10,159]},
+  {id: 125, url:'jaipur-cricket-academy.com', text:'India cricket team schedule and upcoming matches', links:[10,126,143]},
+  {id: 126, url:'t20-cricket-31.com', text:'Cricket stats and records from the last ten seasons', links:[10,142]},
+  {id: 127, url:'t20-cricket-61.com', text:'Women cricket league updates and player profiles', links:[9,105,117]},
+  {id: 128, url:'surat-cricket-academy.com', text:'India cricket team schedule and upcoming matches', links:[7,102,119]},
+  {id: 129, url:'cricket-hot-fan.in', text:'IPL cricket highlights and match analysis every day', links:[8,111,144]},
+  {id: 130, url:'open-cricket-blog.in', text:'Best cricket academies in Nagpur to join this year', links:[10,109]},
+  {id: 131, url:'amazing-cricket-news.in', text:'Top cricket players of all time ranked by experts', links:[7,122,140]},
+  {id: 132, url:'mumbai-cricket-club.com', text:'India cricket team schedule and upcoming matches', links:[10,133]},
+  {id: 133, url:'ahmedabad-cricket-academy.com', text:'Cricket stats and records from the last ten seasons - cricket records', links:[10,165]},
+  {id: 134, url:'bangalore-cricket-academy.com', text:'Top cricket players of all time ranked by experts - cricket news', links:[7,138,171]},
+  {id: 135, url:'fresh-cricket-news.in', text:'How to bowl a perfect cricket delivery - video guide - cricket updates', links:[8,126,140]},
+  {id: 136, url:'cricket-true-fan.in', text:'IPL cricket highlights and match analysis every day', links:[8,103,152]},
+  {id: 137, url:'ipl-best-2022.com', text:'Cricket pitch conditions and how they affect the match', links:[8,179]},
+  {id: 138, url:'smart-cricket-blog.in', text:'Top cricket players of all time ranked by experts - cricket fans', links:[7,141]},
+  {id: 139, url:'bold-cricket-blog.in', text:'Follow live cricket scores ball by ball on your phone', links:[7,143,155]},
+  {id: 140, url:'quick-cricket-news.in', text:'Learn the basics of cricket batting with our guide', links:[8,133]},
+  {id: 141, url:'true-cricket-blog.in', text:'Cricket fitness drills to improve your game fast', links:[7,110,119]},
+  {id: 142, url:'local-cricket-blog.in', text:'Cricket pitch conditions and how they affect the match', links:[8,152]},
+  {id: 143, url:'hyderabad-cricket-club.com', text:'Cricket World Cup moments that changed the game forever', links:[8,114,149]},
+  {id: 144, url:'t20-cricket-30.com', text:'How to bowl a perfect cricket delivery - video guide', links:[8,109]},
+  {id: 145, url:'t20-cricket-60.com', text:'Behind the scenes of a professional cricket training camp', links:[9,105]},
+  {id: 146, url:'ipl-true-2018.com', text:'IPL cricket highlights and match analysis every day - cricket updates', links:[8,120,177]},
+  {id: 147, url:'cricket-crispy-fan.in', text:'Cricket pitch conditions and how they affect the match', links:[8,149]},
+  {id: 148, url:'bold-cricket-news.in', text:'How to bowl a perfect cricket delivery - video guide', links:[8,108,152]},
+  {id: 149, url:'ipl-quick-2018.com', text:'Cricket pitch conditions and how they affect the match', links:[7,143]},
+  {id: 150, url:'hot-cricket-news.in', text:'Cricket fitness drills to improve your game fast - cricket records', links:[9,130]},
+  {id: 151, url:'ipl-hot-2024.com', text:'Behind the scenes of a professional cricket training camp - cricket fans', links:[9,115,123]},
+  {id: 152, url:'t20-cricket-4.com', text:'Learn the basics of cricket batting with our guide', links:[9,103,123]},
+  {id: 153, url:'ipl-top-2019.com', text:'Women cricket league updates and player profiles - cricket stats', links:[10,147,167]},
+  {id: 154, url:'delhi-cricket-academy.com', text:'How to bowl a perfect cricket delivery - video guide', links:[7,104,160]},
+  {id: 155, url:'jaipur-cricket-club.com', text:'Cricket pitch conditions and how they affect the match', links:[10,110,111]},
+  {id: 156, url:'ipl-fine-2019.com', text:'IPL cricket highlights and match analysis every day', links:[8,169,178]},
+  {id: 157, url:'ipl-bold-2022.com', text:'Cricket stats and records from the last ten seasons', links:[7,156]},
+  {id: 158, url:'cricket-local-fan.in', text:'Best cricket academies in Patna to join this year', links:[10,141]},
+  {id: 159, url:'cricket-super-fan.in', text:'Fantasy cricket tips to pick the best team this week', links:[10,112]},
+  {id: 160, url:'fresh-cricket-blog.in', text:'IPL cricket highlights and match analysis every day', links:[8,173]},
+  {id: 161, url:'surat-cricket-club.com', text:'Cricket World Cup moments that changed the game forever', links:[10,107,155]},
+  {id: 162, url:'ipl-fine-2020.com', text:'India cricket team schedule and upcoming matches', links:[9,114,129]},
+  {id: 163, url:'ipl-open-2020.com', text:'IPL cricket highlights and match analysis every day - cricket updates', links:[7,104,124]},
+  {id: 164, url:'ipl-amazing-2020.com', text:'India cricket team schedule and upcoming matches', links:[10,119]},
+  {id: 165, url:'t20-cricket-82.com', text:'Follow live cricket scores ball by ball on your phone', links:[10,144,159]},
+  {id: 166, url:'smart-cricket-news.in', text:'Cricket coaching tips for young players under 18', links:[7,120]},
+  {id: 167, url:'fine-cricket-news.in', text:'Follow live cricket scores ball by ball on your phone', links:[10,157,179]},
+  {id: 168, url:'cricket-great-fan.in', text:'Top cricket players of all time ranked by experts', links:[7,163,177]},
+  {id: 169, url:'nagpur-cricket-academy.com', text:'Cricket coaching tips for young players under 18', links:[7,127]},
+  {id: 170, url:'ipl-quick-2024.com', text:'Learn the basics of cricket batting with our guide', links:[7,123,156]},
+  {id: 171, url:'easy-cricket-news.in', text:'Cricket World Cup moments that changed the game forever', links:[8,151]},
+  {id: 172, url:'top-cricket-blog.in', text:'Best cricket academies in Jaipur to join this year', links:[8,152,175]},
+  {id: 173, url:'t20-cricket-82.com', text:'Best cricket academies in Delhi to join this year', links:[8,159]},
+  {id: 174, url:'smart-cricket-blog.in', text:'IPL cricket highlights and match analysis every day - cricket updates', links:[10,151]},
+  {id: 175, url:'amazing-cricket-blog.in', text:'Women cricket league updates and player profiles', links:[9,166]},
+  {id: 176, url:'t20-cricket-15.com', text:'Cricket World Cup moments that changed the game forever', links:[8,119,131]},
+  {id: 177, url:'bangalore-cricket-club.com', text:'Cricket coaching tips for young players under 18', links:[7,164]},
+  {id: 178, url:'cricket-new-fan.in', text:'Cricket fitness drills to improve your game fast', links:[8,120,157]},
+  {id: 179, url:'jaipur-cricket-club.com', text:'How to bowl a perfect cricket delivery - video guide - cricket stats', links:[8,140]},
+  {id: 180, url:'cricket-bold-fan.in', text:'Follow live cricket scores ball by ball on your phone', links:[7,179]},
+  {id: 181, url:'lucknow-cinema-times.com', text:'Movie buff guide to Surat film festivals', links:[12,206,255]},
+  {id: 182, url:'bollywood-fine.com', text:'New movie trailers ranked by hype and star power', links:[14,225]},
+  {id: 183, url:'movie-fresh-65.in', text:'Movie trivia night questions for your next game evening - movie deals', links:[14,228]},
+  {id: 184, url:'bollywood-amazing.com', text:'Movie buff guide to Bhopal film festivals', links:[12,190,224]},
+  {id: 185, url:'lucknow-movie-guide.com', text:'Movie trivia night questions for your next game evening - movie trailers', links:[15,192,256]},
+  {id: 186, url:'movie-hot-45.in', text:'Classic Hindi movie songs that never go out of style', links:[12,230,253]},
+  {id: 187, url:'movie-super-17.in', text:'Movie trivia night questions for your next game evening', links:[14,183,228]},
+  {id: 188, url:'bollywood-cool.com', text:'Movie ticket booking made easy with our app', links:[15,201]},
+  {id: 189, url:'hyderabad-movie-guide.com', text:'Short film and indie movie showcase from student directors', links:[12,198,258]},
+  {id: 190, url:'film-hot-blog.in', text:'Stream the best movie picks on OTT this weekend', links:[15,186,234]},
+  {id: 191, url:'bollywood-local.com', text:'New movie trailers ranked by hype and star power', links:[14,250]},
+  {id: 192, url:'amazing-movie-reviews.in', text:'Best movie cafes and screening rooms in Patna - movie trailers', links:[14,218,230]},
+  {id: 193, url:'lucknow-cinema-times.com', text:'Movie buff guide to Patna film festivals - movie trailers', links:[15,187,243]},
+  {id: 194, url:'ott-movie-smart.com', text:'South Indian movie crossover hits reviewed in Hindi', links:[12,191,202]},
+  {id: 195, url:'bollywood-bold.com', text:'Movie sequel news and what fans can expect next year', links:[12,239]},
+  {id: 196, url:'bollywood-best.com', text:'Movie buff guide to Ahmedabad film festivals', links:[15,191,229]},
+  {id: 197, url:'best-movie-reviews.in', text:'Behind the scenes of the most awaited movie of the year', links:[13,199]},
+  {id: 198, url:'hyderabad-movie-guide.com', text:'Movie sequel news and what fans can expect next year', links:[14,181,260]},
+  {id: 199, url:'mumbai-movie-guide.com', text:'Classic Hindi movie songs that never go out of style - movie trailers', links:[14,218]},
+  {id: 200, url:'amazing-movie-reviews.in', text:'Top 10 Bollywood movie releases this month', links:[14,195]},
+  {id: 201, url:'ott-movie-true.com', text:'The making of a blockbuster movie explained step by step', links:[15,219]},
+  {id: 202, url:'film-best-blog.in', text:'The making of a blockbuster movie explained step by step', links:[15,249]},
+  {id: 203, url:'bollywood-fresh.com', text:'South Indian movie crossover hits reviewed in Hindi', links:[12,186,242]},
+  {id: 204, url:'movie-easy-48.in', text:'Classic Hindi movie songs that never go out of style', links:[13,194]},
+  {id: 205, url:'ott-movie-new.com', text:'Hollywood movie releases hitting Indian screens this week - movie trailers', links:[13,241]},
+  {id: 206, url:'movie-true-81.in', text:'Stream the best movie picks on OTT this weekend', links:[14,219]},
+  {id: 207, url:'top-movie-reviews.in', text:'Best movie cafes and screening rooms in Mumbai', links:[13,242,251]},
+  {id: 208, url:'bollywood-top.com', text:'Best movie cafes and screening rooms in Hyderabad', links:[12,196,216]},
+  {id: 209, url:'ott-movie-smart.com', text:'Movie buff guide to Indore film festivals', links:[14,204,245]},
+  {id: 210, url:'movie-true-48.in', text:'Movie sequel news and what fans can expect next year', links:[14,237]},
+  {id: 211, url:'patna-cinema-times.com', text:'Stream the best movie picks on OTT this weekend', links:[12,219,221]},
+  {id: 212, url:'film-fine-blog.in', text:'Hollywood movie releases hitting Indian screens this week', links:[13,186,227]},
+  {id: 213, url:'ahmedabad-cinema-times.com', text:'Classic Hindi movie songs that never go out of style', links:[14,201,247]},
+  {id: 214, url:'bangalore-movie-guide.com', text:'Short film and indie movie showcase from student directors', links:[12,189]},
+  {id: 215, url:'smart-movie-reviews.in', text:'Behind the scenes of the most awaited movie of the year - movie fans', links:[14,229,238]},
+  {id: 216, url:'ott-movie-fresh.com', text:'The making of a blockbuster movie explained step by step', links:[13,195,212]},
+  {id: 217, url:'indore-movie-guide.com', text:'Stream the best movie picks on OTT this weekend', links:[12,214,239]},
+  {id: 218, url:'fine-movie-reviews.in', text:'Classic Hindi movie songs that never go out of style - movie buffs', links:[14,238]},
+  {id: 219, url:'bhopal-movie-guide.com', text:'Movie trivia night questions for your next game evening', links:[12,201,220]},
+  {id: 220, url:'movie-cool-47.in', text:'South Indian movie crossover hits reviewed in Hindi', links:[15,245]},
+  {id: 221, url:'kolkata-movie-guide.com', text:'South Indian movie crossover hits reviewed in Hindi', links:[15,189]},
+  {id: 222, url:'bollywood-easy.com', text:'Hollywood movie releases hitting Indian screens this week', links:[14,197]},
+  {id: 223, url:'bollywood-fresh.com', text:'New movie trailers ranked by hype and star power', links:[15,197]},
+  {id: 224, url:'film-pure-blog.in', text:'Movie sequel news and what fans can expect next year - movie fans', links:[13,201]},
+  {id: 225, url:'bollywood-local.com', text:'Behind the scenes of the most awaited movie of the year', links:[13,252]},
+  {id: 226, url:'bollywood-hot.com', text:'Movie trivia night questions for your next game evening', links:[15,202]},
+  {id: 227, url:'movie-fine-93.in', text:'Movie sequel news and what fans can expect next year', links:[12,191]},
+  {id: 228, url:'nagpur-movie-guide.com', text:'Best movie cafes and screening rooms in Hyderabad', links:[14,245]},
+  {id: 229, url:'movie-open-38.in', text:'Movie trivia night questions for your next game evening - movie deals', links:[13,188,190]},
+  {id: 230, url:'bold-movie-reviews.in', text:'Movie buff guide to Jaipur film festivals - movie trailers', links:[15,221,225]},
+  {id: 231, url:'film-hot-blog.in', text:'Best movie cafes and screening rooms in Lucknow', links:[13,241]},
+  {id: 232, url:'hyderabad-movie-guide.com', text:'New movie trailers ranked by hype and star power - movie news', links:[14,201,212]},
+  {id: 233, url:'ott-movie-super.com', text:'Movie sequel news and what fans can expect next year', links:[15,241,247]},
+  {id: 234, url:'film-amazing-blog.in', text:'New movie trailers ranked by hype and star power', links:[14,208]},
+  {id: 235, url:'kolkata-cinema-times.com', text:'Weekly movie review roundup from our expert critics', links:[14,182,250]},
+  {id: 236, url:'ott-movie-crispy.com', text:'Movie buff guide to Hyderabad film festivals', links:[14,186,232]},
+  {id: 237, url:'surat-movie-guide.com', text:'South Indian movie crossover hits reviewed in Hindi', links:[12,239,246]},
+  {id: 238, url:'ott-movie-open.com', text:'Classic Hindi movie songs that never go out of style', links:[15,231]},
+  {id: 239, url:'bollywood-super.com', text:'South Indian movie crossover hits reviewed in Hindi - movie trailers', links:[14,186]},
+  {id: 240, url:'bangalore-movie-guide.com', text:'Hollywood movie releases hitting Indian screens this week', links:[14,259]},
+  {id: 241, url:'bangalore-cinema-times.com', text:'Behind the scenes of the most awaited movie of the year - movie trailers', links:[13,246,247]},
+  {id: 242, url:'jaipur-cinema-times.com', text:'Hollywood movie releases hitting Indian screens this week', links:[12,195,223]},
+  {id: 243, url:'film-new-blog.in', text:'Classic Hindi movie songs that never go out of style', links:[15,256]},
+  {id: 244, url:'film-cool-blog.in', text:'South Indian movie crossover hits reviewed in Hindi', links:[15,185]},
+  {id: 245, url:'indore-cinema-times.com', text:'Top 10 Bollywood movie releases this month', links:[14,233]},
+  {id: 246, url:'movie-quick-53.in', text:'South Indian movie crossover hits reviewed in Hindi', links:[12,248]},
+  {id: 247, url:'open-movie-reviews.in', text:'Behind the scenes of the most awaited movie of the year', links:[15,224,250]},
+  {id: 248, url:'kolkata-cinema-times.com', text:'Movie trivia night questions for your next game evening', links:[15,219,253]},
+  {id: 249, url:'amazing-movie-reviews.in', text:'Best movie cafes and screening rooms in Indore - movie deals', links:[13,225,253]},
+  {id: 250, url:'ott-movie-great.com', text:'Classic Hindi movie songs that never go out of style', links:[14,199,225]},
+  {id: 251, url:'bollywood-top.com', text:'Classic Hindi movie songs that never go out of style', links:[13,206,208]},
+  {id: 252, url:'ott-movie-open.com', text:'Classic Hindi movie songs that never go out of style - movie buffs', links:[15,187]},
+  {id: 253, url:'movie-pure-29.in', text:'Movie trivia night questions for your next game evening - movie news', links:[14,198]},
+  {id: 254, url:'lucknow-movie-guide.com', text:'Movie sequel news and what fans can expect next year', links:[14,206,217]},
+  {id: 255, url:'bollywood-amazing.com', text:'Movie trivia night questions for your next game evening - movie trailers', links:[15,203]},
+  {id: 256, url:'film-cool-blog.in', text:'Movie sequel news and what fans can expect next year', links:[14,218]},
+  {id: 257, url:'mumbai-movie-guide.com', text:'Classic Hindi movie songs that never go out of style - movie news', links:[13,248,250]},
+  {id: 258, url:'film-hot-blog.in', text:'Short film and indie movie showcase from student directors - movie buffs', links:[13,239]},
+  {id: 259, url:'movie-great-92.in', text:'Stream the best movie picks on OTT this weekend', links:[13,203]},
+  {id: 260, url:'patna-cinema-times.com', text:'Movie trivia night questions for your next game evening', links:[13,232]},
+  {id: 261, url:'exam-crispy-tips.in', text:'Best study apps to prepare for any competitive exam', links:[17,295]},
+  {id: 262, url:'board-exam-16.in', text:'Night before exam routine that actually works for students', links:[19,295]},
+  {id: 263, url:'exam-smart-tips.in', text:'Study group tips to make exam prep more productive', links:[18,282,313]},
+  {id: 264, url:'exam-pure-tips.in', text:'Exam hall etiquette and rules every student must know - exam tips', links:[18,290]},
+  {id: 265, url:'true-exam-prep.in', text:'Best study apps to prepare for any competitive exam', links:[18,322,332]},
+  {id: 266, url:'college-open-prep.com', text:'Exam result analysis and what to do if you score low - exam guide', links:[17,308,329]},
+  {id: 267, url:'surat-study-hub.com', text:'Exam revision timetable template for students', links:[19,335]},
+  {id: 268, url:'hot-notes-share.com', text:'Best study apps to prepare for any competitive exam', links:[17,336]},
+  {id: 269, url:'board-exam-6.in', text:'Exam hall etiquette and rules every student must know', links:[18,327]},
+  {id: 270, url:'board-exam-30.in', text:'Common exam mistakes and how to avoid them easily', links:[18,312]},
+  {id: 271, url:'jee-best-guide.com', text:'Study group tips to make exam prep more productive - exam prep', links:[18,331]},
+  {id: 272, url:'delhi-study-hub.com', text:'Exam hall etiquette and rules every student must know - exam dates', links:[17,309,310]},
+  {id: 273, url:'board-exam-25.in', text:'Exam day checklist so you never forget anything important', links:[19,306]},
+  {id: 274, url:'bangalore-study-hub.com', text:'Topper strategies shared by exam rank holders - exam dates', links:[17,300]},
+  {id: 275, url:'board-exam-44.in', text:'Study group tips to make exam prep more productive', links:[17,320]},
+  {id: 276, url:'jee-hot-guide.com', text:'Free mock exam papers for JEE and NEET preparation', links:[17,263,340]},
+  {id: 277, url:'quick-exam-prep.in', text:'Exam revision timetable template for students - exam guide', links:[19,293]},
+  {id: 278, url:'exam-top-tips.in', text:'Exam day checklist so you never forget anything important', links:[17,326]},
+  {id: 279, url:'jee-local-guide.com', text:'Subject-wise exam tips from experienced teachers', links:[19,292,300]},
+  {id: 280, url:'pure-exam-prep.in', text:'Exam stress management tips from student counsellors - exam guide', links:[19,316]},
+  {id: 281, url:'true-notes-share.com', text:'How to score top marks in your board exam this year', links:[19,314,315]},
+  {id: 282, url:'amazing-exam-prep.in', text:'Exam day checklist so you never forget anything important', links:[17,300]},
+  {id: 283, url:'college-hot-prep.com', text:'Exam result analysis and what to do if you score low', links:[18,311]},
+  {id: 284, url:'great-exam-prep.in', text:'Exam stress management tips from student counsellors - exam prep', links:[18,330]},
+  {id: 285, url:'exam-quick-tips.in', text:'How to score top marks in your board exam this year', links:[19,270]},
+  {id: 286, url:'new-exam-prep.in', text:'Study group tips to make exam prep more productive', links:[18,262,289]},
+  {id: 287, url:'crispy-exam-prep.in', text:'Study group tips to make exam prep more productive', links:[19,312]},
+  {id: 288, url:'open-exam-prep.in', text:'How to write a perfect exam answer with examples', links:[19,295,301]},
+  {id: 289, url:'jee-pure-guide.com', text:'Exam hall etiquette and rules every student must know - exam prep', links:[18,309]},
+  {id: 290, url:'jee-tasty-guide.com', text:'How to score top marks in your board exam this year - exam dates', links:[17,332,336]},
+  {id: 291, url:'tasty-notes-share.com', text:'Free mock exam papers for JEE and NEET preparation', links:[18,325]},
+  {id: 292, url:'super-notes-share.com', text:'Free mock exam papers for JEE and NEET preparation', links:[18,282,307]},
+  {id: 293, url:'hot-exam-prep.in', text:'Study group tips to make exam prep more productive - exam guide', links:[19,329]},
+  {id: 294, url:'patna-study-hub.com', text:'Subject-wise exam tips from experienced teachers', links:[17,278,290]},
+  {id: 295, url:'indore-study-hub.com', text:'Best study apps to prepare for any competitive exam', links:[18,340]},
+  {id: 296, url:'board-exam-43.in', text:'Night before exam routine that actually works for students', links:[18,263]},
+  {id: 297, url:'great-notes-share.com', text:'Topper strategies shared by exam rank holders', links:[19,274,283]},
+  {id: 298, url:'lucknow-study-hub.com', text:'Best study apps to prepare for any competitive exam', links:[18,295,312]},
+  {id: 299, url:'kolkata-study-hub.com', text:'Exam day checklist so you never forget anything important - exam dates', links:[18,265]},
+  {id: 300, url:'ahmedabad-study-hub.com', text:'Exam day checklist so you never forget anything important', links:[19,282]},
+  {id: 301, url:'jaipur-study-hub.com', text:'Subject-wise exam tips from experienced teachers', links:[19,329]},
+  {id: 302, url:'chennai-study-hub.com', text:'Exam stress management tips from student counsellors - exam results', links:[19,331,334]},
+  {id: 303, url:'exam-top-tips.in', text:'Best study apps to prepare for any competitive exam', links:[19,312]},
+  {id: 304, url:'hyderabad-study-hub.com', text:'Best study apps to prepare for any competitive exam', links:[18,278,311]},
+  {id: 305, url:'college-fresh-prep.com', text:'Topper strategies shared by exam rank holders - exam dates', links:[17,339,340]},
+  {id: 306, url:'easy-notes-share.com', text:'Exam result analysis and what to do if you score low', links:[18,290,307]},
+  {id: 307, url:'easy-notes-share.com', text:'Exam day checklist so you never forget anything important', links:[18,298]},
+  {id: 308, url:'college-local-prep.com', text:'Study group tips to make exam prep more productive - exam prep', links:[19,311]},
+  {id: 309, url:'jee-smart-guide.com', text:'Exam revision timetable template for students', links:[18,274,295]},
+  {id: 310, url:'fresh-exam-prep.in', text:'Best study apps to prepare for any competitive exam', links:[19,264,274]},
+  {id: 311, url:'kolkata-study-hub.com', text:'Topper strategies shared by exam rank holders', links:[18,262,298]},
+  {id: 312, url:'board-exam-25.in', text:'Exam result analysis and what to do if you score low', links:[17,309]},
+  {id: 313, url:'hot-exam-prep.in', text:'Free mock exam papers for JEE and NEET preparation', links:[17,317]},
+  {id: 314, url:'jee-tasty-guide.com', text:'Free mock exam papers for JEE and NEET preparation - exam tips', links:[17,338,340]},
+  {id: 315, url:'bold-exam-prep.in', text:'Exam revision timetable template for students - exam prep', links:[18,303,318]},
+  {id: 316, url:'jee-tasty-guide.com', text:'Subject-wise exam tips from experienced teachers', links:[19,323]},
+  {id: 317, url:'jee-cool-guide.com', text:'Exam day checklist so you never forget anything important', links:[19,292,335]},
+  {id: 318, url:'jee-easy-guide.com', text:'Free mock exam papers for JEE and NEET preparation - exam guide', links:[17,332]},
+  {id: 319, url:'indore-study-hub.com', text:'Night before exam routine that actually works for students', links:[19,313]},
+  {id: 320, url:'exam-true-tips.in', text:'Best study apps to prepare for any competitive exam - exam dates', links:[19,270,309]},
+  {id: 321, url:'board-exam-39.in', text:'Night before exam routine that actually works for students', links:[19,265,331]},
+  {id: 322, url:'college-smart-prep.com', text:'Study group tips to make exam prep more productive', links:[17,292]},
+  {id: 323, url:'exam-smart-tips.in', text:'Best study apps to prepare for any competitive exam', links:[19,303,316]},
+  {id: 324, url:'mumbai-study-hub.com', text:'Exam revision timetable template for students', links:[19,318]},
+  {id: 325, url:'jee-easy-guide.com', text:'Night before exam routine that actually works for students', links:[18,322]},
+  {id: 326, url:'hyderabad-study-hub.com', text:'Exam day checklist so you never forget anything important', links:[19,305]},
+  {id: 327, url:'jee-super-guide.com', text:'Night before exam routine that actually works for students', links:[18,317]},
+  {id: 328, url:'exam-bold-tips.in', text:'How to write a perfect exam answer with examples - exam results', links:[17,274,282]},
+  {id: 329, url:'exam-local-tips.in', text:'Topper strategies shared by exam rank holders - exam guide', links:[18,290,312]},
+  {id: 330, url:'exam-cool-tips.in', text:'Best study apps to prepare for any competitive exam - exam guide', links:[17,315,337]},
+  {id: 331, url:'board-exam-1.in', text:'Study group tips to make exam prep more productive - exam results', links:[19,329]},
+  {id: 332, url:'smart-exam-prep.in', text:'How to write a perfect exam answer with examples - exam prep', links:[19,310,338]},
+  {id: 333, url:'easy-notes-share.com', text:'Common exam mistakes and how to avoid them easily', links:[18,299]},
+  {id: 334, url:'new-notes-share.com', text:'Exam revision timetable template for students - exam tips', links:[17,308]},
+  {id: 335, url:'exam-hot-tips.in', text:'Topper strategies shared by exam rank holders', links:[19,284,315]},
+  {id: 336, url:'board-exam-41.in', text:'Topper strategies shared by exam rank holders - exam tips', links:[17,301]},
+  {id: 337, url:'college-bold-prep.com', text:'Common exam mistakes and how to avoid them easily', links:[17,278,285]},
+  {id: 338, url:'college-easy-prep.com', text:'Topper strategies shared by exam rank holders', links:[19,314,317]},
+  {id: 339, url:'board-exam-11.in', text:'Exam revision timetable template for students', links:[17,265,296]},
+  {id: 340, url:'open-exam-prep.in', text:'Free mock exam papers for JEE and NEET preparation', links:[19,326,331]},
+  {id: 341, url:'new-tech-blog.in', text:'Latest tech news and gadget reviews from Delhi', links:[384,717,897]},
+  {id: 342, url:'sports-open-fan.in', text:'Sports news and highlights from across the country', links:[446,595]},
+  {id: 343, url:'travel-jaipur-great.com', text:'Travel guide to Kolkata with tips on food and sightseeing', links:[791]},
+  {id: 344, url:'local-tech-blog.in', text:'Latest tech news and gadget reviews from Chennai', links:[701,966,989]},
+  {id: 345, url:'learn-hot-skills.in', text:'Online courses and skill-building workshops for students', links:[402]},
+  {id: 346, url:'hyderabad-events-guide.com', text:'Events and things to do in Surat this weekend', links:[638,641]},
+  {id: 347, url:'yoga-pure-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[439,480,763]},
+  {id: 348, url:'music-hot-vibes.com', text:'New music releases and playlist picks for this week', links:[7,597]},
+  {id: 349, url:'yoga-local-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[487,744,843]},
+  {id: 350, url:'music-tasty-vibes.com', text:'New music releases and playlist picks for this week', links:[990]},
+  {id: 351, url:'photography-fresh.com', text:'Photography tips and best camera gear reviewed this month', links:[626,719,807]},
+  {id: 352, url:'new-finance-tips.in', text:'Personal finance guide - save money and invest wisely - including pizza and snacks at the venue', links:[708,811,992]},
+  {id: 353, url:'photography-open.com', text:'Photography tips and best camera gear reviewed this month', links:[558,848]},
+  {id: 354, url:'yoga-amazing-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[475,838,921]},
+  {id: 355, url:'nagpur-job-board.com', text:'Job listings and career advice for fresh graduates', links:[443]},
+  {id: 356, url:'yoga-bold-life.in', text:'Yoga and meditation routines for daily wellness practice - and cricket match viewing parties', links:[341,809]},
+  {id: 357, url:'recipe-quick-89.com', text:'Easy home cooking recipes using simple ingredients', links:[7,504,622,651]},
+  {id: 358, url:'music-fresh-vibes.com', text:'New music releases and playlist picks for this week', links:[395,511,747]},
+  {id: 359, url:'book-local-reads.in', text:'Book reviews and reading recommendations for all ages', links:[12,439]},
+  {id: 360, url:'hot-tech-blog.in', text:'Latest tech news and gadget reviews from Surat', links:[349,350,797]},
+  {id: 361, url:'yoga-crispy-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[12,477,831]},
+  {id: 362, url:'crispy-tech-blog.in', text:'Latest tech news and gadget reviews from Delhi', links:[482,733]},
+  {id: 363, url:'photography-hot.com', text:'Photography tips and best camera gear reviewed this month', links:[412,488,885]},
+  {id: 364, url:'learn-cool-skills.in', text:'Online courses and skill-building workshops for students', links:[497,560,985]},
+  {id: 365, url:'learn-bold-skills.in', text:'Online courses and skill-building workshops for students', links:[1,444]},
+  {id: 366, url:'learn-easy-skills.in', text:'Online courses and skill-building workshops for students', links:[485,664]},
+  {id: 367, url:'startup-fresh-india.com', text:'Startup stories and entrepreneurship advice from India', links:[633,956,964]},
+  {id: 368, url:'book-best-reads.in', text:'Book reviews and reading recommendations for all ages', links:[552,650,872]},
+  {id: 369, url:'indore-news-today.in', text:'Breaking news and local updates from Ahmedabad city', links:[587]},
+  {id: 370, url:'local-tech-blog.in', text:'Latest tech news and gadget reviews from Jaipur', links:[882]},
+  {id: 371, url:'travel-kolkata-super.com', text:'Travel guide to Bangalore with tips on food and sightseeing', links:[716,772,901]},
+  {id: 372, url:'photography-true.com', text:'Photography tips and best camera gear reviewed this month', links:[358]},
+  {id: 373, url:'travel-hyderabad-quick.com', text:'Travel guide to Mumbai with tips on food and sightseeing', links:[635,860]},
+  {id: 374, url:'bhopal-events-guide.com', text:'Events and things to do in Ahmedabad this weekend', links:[426,997]},
+  {id: 375, url:'learn-hot-skills.in', text:'Online courses and skill-building workshops for students', links:[422,865]},
+  {id: 376, url:'photography-hot.com', text:'Photography tips and best camera gear reviewed this month', links:[942,991]},
+  {id: 377, url:'startup-fresh-india.com', text:'Startup stories and entrepreneurship advice from India', links:[401,586]},
+  {id: 378, url:'ahmedabad-job-board.com', text:'Job listings and career advice for fresh graduates', links:[398,658,965]},
+  {id: 379, url:'startup-cool-india.com', text:'Startup stories and entrepreneurship advice from India', links:[352,482,509]},
+  {id: 380, url:'pure-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[7,512,607,722]},
+  {id: 381, url:'book-crispy-reads.in', text:'Book reviews and reading recommendations for all ages', links:[685]},
+  {id: 382, url:'music-pure-vibes.com', text:'New music releases and playlist picks for this week - including pizza and snacks at the venue', links:[808,865]},
+  {id: 383, url:'sports-new-fan.in', text:'Sports news and highlights from across the country', links:[603]},
+  {id: 384, url:'surat-job-board.com', text:'Job listings and career advice for fresh graduates', links:[575]},
+  {id: 385, url:'travel-mumbai-best.com', text:'Travel guide to Chennai with tips on food and sightseeing - and movie screening events', links:[495,525]},
+  {id: 386, url:'yoga-top-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[571,671,771]},
+  {id: 387, url:'indore-job-board.com', text:'Job listings and career advice for fresh graduates', links:[927]},
+  {id: 388, url:'nagpur-events-guide.com', text:'Events and things to do in Mumbai this weekend', links:[389,412,752]},
+  {id: 389, url:'yoga-amazing-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[430,677]},
+  {id: 390, url:'travel-kolkata-quick.com', text:'Travel guide to Hyderabad with tips on food and sightseeing', links:[590,979]},
+  {id: 391, url:'learn-true-skills.in', text:'Online courses and skill-building workshops for students', links:[901]},
+  {id: 392, url:'bangalore-news-today.in', text:'Breaking news and local updates from Mumbai city', links:[580]},
+  {id: 393, url:'startup-best-india.com', text:'Startup stories and entrepreneurship advice from India', links:[727]},
+  {id: 394, url:'book-amazing-reads.in', text:'Book reviews and reading recommendations for all ages', links:[585,771,845]},
+  {id: 395, url:'health-great-6.com', text:'Health tips and fitness advice for a better lifestyle - and cricket match viewing parties', links:[723,764,811]},
+  {id: 396, url:'new-tech-blog.in', text:'Latest tech news and gadget reviews from Delhi', links:[418,745,948]},
+  {id: 397, url:'recipe-hot-31.com', text:'Easy home cooking recipes using simple ingredients', links:[676,744]},
+  {id: 398, url:'music-local-vibes.com', text:'New music releases and playlist picks for this week - and cricket match viewing parties', links:[1,940]},
+  {id: 399, url:'health-bold-30.com', text:'Health tips and fitness advice for a better lifestyle', links:[890]},
+  {id: 400, url:'photography-quick.com', text:'Photography tips and best camera gear reviewed this month', links:[19,464,613]},
+  {id: 401, url:'music-fine-vibes.com', text:'New music releases and playlist picks for this week - and movie screening events', links:[435]},
+  {id: 402, url:'easy-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[12,520,608,648]},
+  {id: 403, url:'yoga-bold-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[2,438,597,815]},
+  {id: 404, url:'best-tech-blog.in', text:'Latest tech news and gadget reviews from Mumbai', links:[475]},
+  {id: 405, url:'recipe-smart-88.com', text:'Easy home cooking recipes using simple ingredients', links:[428,938,942]},
+  {id: 406, url:'yoga-fresh-life.in', text:'Yoga and meditation routines for daily wellness practice - including pizza and snacks at the venue', links:[796]},
+  {id: 407, url:'super-tech-blog.in', text:'Latest tech news and gadget reviews from Delhi - and exam preparation workshops', links:[514]},
+  {id: 408, url:'recipe-easy-64.com', text:'Easy home cooking recipes using simple ingredients - and exam preparation workshops', links:[704]},
+  {id: 409, url:'health-great-18.com', text:'Health tips and fitness advice for a better lifestyle', links:[376]},
+  {id: 410, url:'learn-local-skills.in', text:'Online courses and skill-building workshops for students', links:[763,905]},
+  {id: 411, url:'great-tech-blog.in', text:'Latest tech news and gadget reviews from Ahmedabad', links:[1000]},
+  {id: 412, url:'chennai-events-guide.com', text:'Events and things to do in Nagpur this weekend', links:[360,709,733]},
+  {id: 413, url:'photography-true.com', text:'Photography tips and best camera gear reviewed this month', links:[671,739,856]},
+  {id: 414, url:'travel-kolkata-fine.com', text:'Travel guide to Chennai with tips on food and sightseeing - and movie screening events', links:[825]},
+  {id: 415, url:'photography-new.com', text:'Photography tips and best camera gear reviewed this month', links:[444]},
+  {id: 416, url:'hyderabad-news-today.in', text:'Breaking news and local updates from Lucknow city', links:[398,566,931]},
+  {id: 417, url:'photography-easy.com', text:'Photography tips and best camera gear reviewed this month', links:[522]},
+  {id: 418, url:'smart-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[702]},
+  {id: 419, url:'learn-hot-skills.in', text:'Online courses and skill-building workshops for students', links:[846]},
+  {id: 420, url:'health-true-3.com', text:'Health tips and fitness advice for a better lifestyle', links:[958]},
+  {id: 421, url:'jaipur-events-guide.com', text:'Events and things to do in Mumbai this weekend', links:[475,548,690]},
+  {id: 422, url:'bhopal-job-board.com', text:'Job listings and career advice for fresh graduates', links:[19,363,401]},
+  {id: 423, url:'bangalore-job-board.com', text:'Job listings and career advice for fresh graduates', links:[415,715,724]},
+  {id: 424, url:'startup-easy-india.com', text:'Startup stories and entrepreneurship advice from India', links:[2,651,672]},
+  {id: 425, url:'book-tasty-reads.in', text:'Book reviews and reading recommendations for all ages', links:[520,666]},
+  {id: 426, url:'indore-events-guide.com', text:'Events and things to do in Surat this weekend', links:[945]},
+  {id: 427, url:'recipe-amazing-94.com', text:'Easy home cooking recipes using simple ingredients', links:[523]},
+  {id: 428, url:'book-new-reads.in', text:'Book reviews and reading recommendations for all ages', links:[374,528,958]},
+  {id: 429, url:'photography-fine.com', text:'Photography tips and best camera gear reviewed this month', links:[448,486,850]},
+  {id: 430, url:'local-tech-blog.in', text:'Latest tech news and gadget reviews from Kolkata', links:[993]},
+  {id: 431, url:'super-tech-blog.in', text:'Latest tech news and gadget reviews from Jaipur - and cricket match viewing parties', links:[410]},
+  {id: 432, url:'photography-crispy.com', text:'Photography tips and best camera gear reviewed this month', links:[737]},
+  {id: 433, url:'recipe-cool-53.com', text:'Easy home cooking recipes using simple ingredients', links:[701,901]},
+  {id: 434, url:'yoga-true-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[1,508,572,804]},
+  {id: 435, url:'music-best-vibes.com', text:'New music releases and playlist picks for this week', links:[416]},
+  {id: 436, url:'ahmedabad-job-board.com', text:'Job listings and career advice for fresh graduates', links:[902]},
+  {id: 437, url:'super-tech-blog.in', text:'Latest tech news and gadget reviews from Surat', links:[372,783]},
+  {id: 438, url:'health-fine-28.com', text:'Health tips and fitness advice for a better lifestyle', links:[681]},
+  {id: 439, url:'ahmedabad-news-today.in', text:'Breaking news and local updates from Indore city', links:[613,630,895]},
+  {id: 440, url:'top-tech-blog.in', text:'Latest tech news and gadget reviews from Ahmedabad', links:[396,499]},
+  {id: 441, url:'recipe-fresh-38.com', text:'Easy home cooking recipes using simple ingredients', links:[2,546,833,956]},
+  {id: 442, url:'health-amazing-6.com', text:'Health tips and fitness advice for a better lifestyle', links:[657]},
+  {id: 443, url:'sports-true-fan.in', text:'Sports news and highlights from across the country', links:[434,999]},
+  {id: 444, url:'health-smart-25.com', text:'Health tips and fitness advice for a better lifestyle', links:[386,611]},
+  {id: 445, url:'music-local-vibes.com', text:'New music releases and playlist picks for this week', links:[7,404,440,496]},
+  {id: 446, url:'photography-open.com', text:'Photography tips and best camera gear reviewed this month', links:[403,574,908]},
+  {id: 447, url:'yoga-pure-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[583,828,928]},
+  {id: 448, url:'easy-tech-blog.in', text:'Latest tech news and gadget reviews from Patna', links:[871,926,927]},
+  {id: 449, url:'learn-hot-skills.in', text:'Online courses and skill-building workshops for students', links:[513,519]},
+  {id: 450, url:'photography-quick.com', text:'Photography tips and best camera gear reviewed this month', links:[421,787]},
+  {id: 451, url:'yoga-hot-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[17,409,669]},
+  {id: 452, url:'recipe-open-42.com', text:'Easy home cooking recipes using simple ingredients', links:[353,811,980]},
+  {id: 453, url:'photography-tasty.com', text:'Photography tips and best camera gear reviewed this month', links:[493]},
+  {id: 454, url:'learn-crispy-skills.in', text:'Online courses and skill-building workshops for students', links:[444,634,890]},
+  {id: 455, url:'ahmedabad-job-board.com', text:'Job listings and career advice for fresh graduates', links:[839,927,965]},
+  {id: 456, url:'health-great-26.com', text:'Health tips and fitness advice for a better lifestyle', links:[380,747,753]},
+  {id: 457, url:'local-finance-tips.in', text:'Personal finance guide - save money and invest wisely - and exam preparation workshops', links:[361,723]},
+  {id: 458, url:'photography-amazing.com', text:'Photography tips and best camera gear reviewed this month', links:[19,441,575]},
+  {id: 459, url:'sports-super-fan.in', text:'Sports news and highlights from across the country', links:[432,961]},
+  {id: 460, url:'patna-news-today.in', text:'Breaking news and local updates from Ahmedabad city', links:[398,724,869]},
+  {id: 461, url:'amazing-tech-blog.in', text:'Latest tech news and gadget reviews from Indore', links:[878]},
+  {id: 462, url:'travel-bangalore-quick.com', text:'Travel guide to Patna with tips on food and sightseeing', links:[1,597]},
+  {id: 463, url:'kolkata-job-board.com', text:'Job listings and career advice for fresh graduates', links:[719,817]},
+  {id: 464, url:'startup-crispy-india.com', text:'Startup stories and entrepreneurship advice from India', links:[723]},
+  {id: 465, url:'sports-cool-fan.in', text:'Sports news and highlights from across the country', links:[906,942]},
+  {id: 466, url:'health-great-48.com', text:'Health tips and fitness advice for a better lifestyle', links:[1,633]},
+  {id: 467, url:'health-new-50.com', text:'Health tips and fitness advice for a better lifestyle', links:[572]},
+  {id: 468, url:'music-tasty-vibes.com', text:'New music releases and playlist picks for this week', links:[350,477,827]},
+  {id: 469, url:'learn-best-skills.in', text:'Online courses and skill-building workshops for students', links:[623,654,1000]},
+  {id: 470, url:'recipe-smart-59.com', text:'Easy home cooking recipes using simple ingredients', links:[651,875]},
+  {id: 471, url:'recipe-new-14.com', text:'Easy home cooking recipes using simple ingredients - and movie screening events', links:[631,950,965]},
+  {id: 472, url:'true-tech-blog.in', text:'Latest tech news and gadget reviews from Delhi', links:[674,997]},
+  {id: 473, url:'music-amazing-vibes.com', text:'New music releases and playlist picks for this week', links:[399,588,956]},
+  {id: 474, url:'hot-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[607,644,851]},
+  {id: 475, url:'recipe-easy-95.com', text:'Easy home cooking recipes using simple ingredients - and cricket match viewing parties', links:[569,889]},
+  {id: 476, url:'sports-smart-fan.in', text:'Sports news and highlights from across the country', links:[913]},
+  {id: 477, url:'true-tech-blog.in', text:'Latest tech news and gadget reviews from Bangalore', links:[529,685,914]},
+  {id: 478, url:'kolkata-news-today.in', text:'Breaking news and local updates from Chennai city', links:[681,772]},
+  {id: 479, url:'learn-amazing-skills.in', text:'Online courses and skill-building workshops for students', links:[19,823]},
+  {id: 480, url:'learn-new-skills.in', text:'Online courses and skill-building workshops for students', links:[825]},
+  {id: 481, url:'delhi-events-guide.com', text:'Events and things to do in Patna this weekend', links:[396,647,765]},
+  {id: 482, url:'health-hot-13.com', text:'Health tips and fitness advice for a better lifestyle', links:[488,665,810]},
+  {id: 483, url:'health-fresh-32.com', text:'Health tips and fitness advice for a better lifestyle', links:[662]},
+  {id: 484, url:'travel-jaipur-great.com', text:'Travel guide to Chennai with tips on food and sightseeing', links:[932]},
+  {id: 485, url:'sports-fresh-fan.in', text:'Sports news and highlights from across the country', links:[781,990]},
+  {id: 486, url:'sports-easy-fan.in', text:'Sports news and highlights from across the country - and cricket match viewing parties', links:[355,671,724]},
+  {id: 487, url:'chennai-events-guide.com', text:'Events and things to do in Mumbai this weekend', links:[573,596,694]},
+  {id: 488, url:'easy-tech-blog.in', text:'Latest tech news and gadget reviews from Lucknow', links:[407]},
+  {id: 489, url:'music-amazing-vibes.com', text:'New music releases and playlist picks for this week', links:[687,878,952]},
+  {id: 490, url:'startup-hot-india.com', text:'Startup stories and entrepreneurship advice from India', links:[534,709]},
+  {id: 491, url:'bhopal-job-board.com', text:'Job listings and career advice for fresh graduates', links:[571]},
+  {id: 492, url:'health-quick-47.com', text:'Health tips and fitness advice for a better lifestyle - and cricket match viewing parties', links:[717]},
+  {id: 493, url:'photography-top.com', text:'Photography tips and best camera gear reviewed this month', links:[1,603,889,980]},
+  {id: 494, url:'startup-crispy-india.com', text:'Startup stories and entrepreneurship advice from India', links:[390]},
+  {id: 495, url:'recipe-bold-49.com', text:'Easy home cooking recipes using simple ingredients', links:[498,827]},
+  {id: 496, url:'startup-best-india.com', text:'Startup stories and entrepreneurship advice from India', links:[444,618,874]},
+  {id: 497, url:'book-hot-reads.in', text:'Book reviews and reading recommendations for all ages', links:[865]},
+  {id: 498, url:'amazing-tech-blog.in', text:'Latest tech news and gadget reviews from Delhi', links:[545,965]},
+  {id: 499, url:'music-pure-vibes.com', text:'New music releases and playlist picks for this week', links:[644,761]},
+  {id: 500, url:'jaipur-events-guide.com', text:'Events and things to do in Chennai this weekend', links:[19,582,680]},
+  {id: 501, url:'crispy-tech-blog.in', text:'Latest tech news and gadget reviews from Patna', links:[433,493]},
+  {id: 502, url:'crispy-tech-blog.in', text:'Latest tech news and gadget reviews from Hyderabad', links:[612,645]},
+  {id: 503, url:'cool-tech-blog.in', text:'Latest tech news and gadget reviews from Patna - and movie screening events', links:[662,778]},
+  {id: 504, url:'top-tech-blog.in', text:'Latest tech news and gadget reviews from Mumbai', links:[516,678,708]},
+  {id: 505, url:'learn-great-skills.in', text:'Online courses and skill-building workshops for students', links:[723]},
+  {id: 506, url:'health-crispy-26.com', text:'Health tips and fitness advice for a better lifestyle', links:[620,736]},
+  {id: 507, url:'sports-tasty-fan.in', text:'Sports news and highlights from across the country', links:[19,456]},
+  {id: 508, url:'travel-patna-cool.com', text:'Travel guide to Delhi with tips on food and sightseeing', links:[790,836,924]},
+  {id: 509, url:'recipe-smart-79.com', text:'Easy home cooking recipes using simple ingredients - and cricket match viewing parties', links:[456,841]},
+  {id: 510, url:'sports-top-fan.in', text:'Sports news and highlights from across the country - and movie screening events', links:[879]},
+  {id: 511, url:'learn-new-skills.in', text:'Online courses and skill-building workshops for students', links:[688,873,877]},
+  {id: 512, url:'learn-crispy-skills.in', text:'Online courses and skill-building workshops for students', links:[596,696,835]},
+  {id: 513, url:'startup-easy-india.com', text:'Startup stories and entrepreneurship advice from India', links:[352,396,969]},
+  {id: 514, url:'health-pure-31.com', text:'Health tips and fitness advice for a better lifestyle', links:[417]},
+  {id: 515, url:'local-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[392,861]},
+  {id: 516, url:'startup-easy-india.com', text:'Startup stories and entrepreneurship advice from India', links:[421]},
+  {id: 517, url:'photography-new.com', text:'Photography tips and best camera gear reviewed this month', links:[12,665,799]},
+  {id: 518, url:'book-best-reads.in', text:'Book reviews and reading recommendations for all ages', links:[377,912]},
+  {id: 519, url:'yoga-fresh-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[653,862,994]},
+  {id: 520, url:'startup-bold-india.com', text:'Startup stories and entrepreneurship advice from India', links:[396,570]},
+  {id: 521, url:'open-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[19,714,805,826]},
+  {id: 522, url:'mumbai-news-today.in', text:'Breaking news and local updates from Kolkata city', links:[640,876,902]},
+  {id: 523, url:'top-tech-blog.in', text:'Latest tech news and gadget reviews from Bangalore', links:[450,602,761]},
+  {id: 524, url:'delhi-news-today.in', text:'Breaking news and local updates from Patna city', links:[12,537,688]},
+  {id: 525, url:'travel-nagpur-new.com', text:'Travel guide to Delhi with tips on food and sightseeing', links:[810,945]},
+  {id: 526, url:'health-true-1.com', text:'Health tips and fitness advice for a better lifestyle', links:[908]},
+  {id: 527, url:'yoga-new-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[518,522,934]},
+  {id: 528, url:'health-crispy-25.com', text:'Health tips and fitness advice for a better lifestyle', links:[671,735,858]},
+  {id: 529, url:'learn-local-skills.in', text:'Online courses and skill-building workshops for students', links:[643,805]},
+  {id: 530, url:'health-tasty-39.com', text:'Health tips and fitness advice for a better lifestyle', links:[648,866,902]},
+  {id: 531, url:'book-open-reads.in', text:'Book reviews and reading recommendations for all ages', links:[556]},
+  {id: 532, url:'music-smart-vibes.com', text:'New music releases and playlist picks for this week', links:[523]},
+  {id: 533, url:'book-super-reads.in', text:'Book reviews and reading recommendations for all ages', links:[833,917]},
+  {id: 534, url:'startup-tasty-india.com', text:'Startup stories and entrepreneurship advice from India', links:[354,634,774]},
+  {id: 535, url:'travel-ahmedabad-hot.com', text:'Travel guide to Mumbai with tips on food and sightseeing', links:[615]},
+  {id: 536, url:'health-amazing-44.com', text:'Health tips and fitness advice for a better lifestyle', links:[644]},
+  {id: 537, url:'mumbai-events-guide.com', text:'Events and things to do in Kolkata this weekend', links:[972]},
+  {id: 538, url:'book-open-reads.in', text:'Book reviews and reading recommendations for all ages', links:[585,740,916]},
+  {id: 539, url:'photography-amazing.com', text:'Photography tips and best camera gear reviewed this month', links:[732]},
+  {id: 540, url:'photography-super.com', text:'Photography tips and best camera gear reviewed this month', links:[354]},
+  {id: 541, url:'surat-news-today.in', text:'Breaking news and local updates from Patna city', links:[572,990]},
+  {id: 542, url:'startup-smart-india.com', text:'Startup stories and entrepreneurship advice from India', links:[539,543,959]},
+  {id: 543, url:'health-fresh-12.com', text:'Health tips and fitness advice for a better lifestyle', links:[7,463,728,868]},
+  {id: 544, url:'hyderabad-events-guide.com', text:'Events and things to do in Bangalore this weekend', links:[346,680]},
+  {id: 545, url:'bangalore-job-board.com', text:'Job listings and career advice for fresh graduates - and movie screening events', links:[393,972,982]},
+  {id: 546, url:'music-true-vibes.com', text:'New music releases and playlist picks for this week', links:[415,667,708]},
+  {id: 547, url:'health-pure-5.com', text:'Health tips and fitness advice for a better lifestyle', links:[767]},
+  {id: 548, url:'recipe-fresh-45.com', text:'Easy home cooking recipes using simple ingredients', links:[681]},
+  {id: 549, url:'music-quick-vibes.com', text:'New music releases and playlist picks for this week', links:[828,885,916]},
+  {id: 550, url:'startup-best-india.com', text:'Startup stories and entrepreneurship advice from India', links:[588,798]},
+  {id: 551, url:'learn-fine-skills.in', text:'Online courses and skill-building workshops for students', links:[670]},
+  {id: 552, url:'photography-crispy.com', text:'Photography tips and best camera gear reviewed this month', links:[366,631,871]},
+  {id: 553, url:'pure-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[385,840]},
+  {id: 554, url:'startup-quick-india.com', text:'Startup stories and entrepreneurship advice from India', links:[439]},
+  {id: 555, url:'photography-open.com', text:'Photography tips and best camera gear reviewed this month', links:[408,557,986]},
+  {id: 556, url:'yoga-tasty-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[892]},
+  {id: 557, url:'indore-job-board.com', text:'Job listings and career advice for fresh graduates', links:[365,414,498]},
+  {id: 558, url:'top-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[523]},
+  {id: 559, url:'delhi-events-guide.com', text:'Events and things to do in Surat this weekend', links:[739,759]},
+  {id: 560, url:'recipe-tasty-41.com', text:'Easy home cooking recipes using simple ingredients - including pizza and snacks at the venue', links:[19,347,975,998]},
+  {id: 561, url:'learn-top-skills.in', text:'Online courses and skill-building workshops for students', links:[708]},
+  {id: 562, url:'amazing-tech-blog.in', text:'Latest tech news and gadget reviews from Bhopal', links:[429,630,790]},
+  {id: 563, url:'yoga-best-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[480,567,742]},
+  {id: 564, url:'yoga-open-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[488,647,724]},
+  {id: 565, url:'travel-lucknow-open.com', text:'Travel guide to Bangalore with tips on food and sightseeing', links:[928]},
+  {id: 566, url:'lucknow-events-guide.com', text:'Events and things to do in Delhi this weekend', links:[557,694,764]},
+  {id: 567, url:'yoga-pure-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[568]},
+  {id: 568, url:'music-quick-vibes.com', text:'New music releases and playlist picks for this week', links:[396,904,922]},
+  {id: 569, url:'delhi-events-guide.com', text:'Events and things to do in Hyderabad this weekend', links:[441,543]},
+  {id: 570, url:'sports-super-fan.in', text:'Sports news and highlights from across the country', links:[443,582,633]},
+  {id: 571, url:'chennai-job-board.com', text:'Job listings and career advice for fresh graduates', links:[678,973]},
+  {id: 572, url:'book-new-reads.in', text:'Book reviews and reading recommendations for all ages', links:[665,715,780]},
+  {id: 573, url:'local-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[625,788,998]},
+  {id: 574, url:'health-super-31.com', text:'Health tips and fitness advice for a better lifestyle', links:[654,840]},
+  {id: 575, url:'health-fine-6.com', text:'Health tips and fitness advice for a better lifestyle', links:[893]},
+  {id: 576, url:'book-fresh-reads.in', text:'Book reviews and reading recommendations for all ages', links:[861]},
+  {id: 577, url:'yoga-new-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[378,558,906]},
+  {id: 578, url:'lucknow-job-board.com', text:'Job listings and career advice for fresh graduates', links:[716]},
+  {id: 579, url:'bhopal-job-board.com', text:'Job listings and career advice for fresh graduates', links:[478,817]},
+  {id: 580, url:'easy-tech-blog.in', text:'Latest tech news and gadget reviews from Kolkata', links:[510,586,970]},
+  {id: 581, url:'health-bold-11.com', text:'Health tips and fitness advice for a better lifestyle', links:[12,490,709,837]},
+  {id: 582, url:'delhi-news-today.in', text:'Breaking news and local updates from Hyderabad city', links:[552]},
+  {id: 583, url:'photography-smart.com', text:'Photography tips and best camera gear reviewed this month', links:[381,388]},
+  {id: 584, url:'crispy-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[611,622,990]},
+  {id: 585, url:'learn-cool-skills.in', text:'Online courses and skill-building workshops for students', links:[716,943]},
+  {id: 586, url:'yoga-fresh-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[569,870]},
+  {id: 587, url:'yoga-smart-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[347,960]},
+  {id: 588, url:'health-bold-11.com', text:'Health tips and fitness advice for a better lifestyle', links:[557,629,1000]},
+  {id: 589, url:'health-smart-39.com', text:'Health tips and fitness advice for a better lifestyle', links:[576]},
+  {id: 590, url:'crispy-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[556,832]},
+  {id: 591, url:'startup-tasty-india.com', text:'Startup stories and entrepreneurship advice from India - including pizza and snacks at the venue', links:[929]},
+  {id: 592, url:'health-pure-3.com', text:'Health tips and fitness advice for a better lifestyle', links:[398]},
+  {id: 593, url:'bangalore-job-board.com', text:'Job listings and career advice for fresh graduates', links:[919,955]},
+  {id: 594, url:'indore-job-board.com', text:'Job listings and career advice for fresh graduates', links:[428,562]},
+  {id: 595, url:'sports-true-fan.in', text:'Sports news and highlights from across the country', links:[487,957]},
+  {id: 596, url:'yoga-cool-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[512,612,692]},
+  {id: 597, url:'learn-new-skills.in', text:'Online courses and skill-building workshops for students - and exam preparation workshops', links:[17,452,476]},
+  {id: 598, url:'yoga-pure-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[12,962]},
+  {id: 599, url:'surat-job-board.com', text:'Job listings and career advice for fresh graduates', links:[436,461,857]},
+  {id: 600, url:'health-fine-35.com', text:'Health tips and fitness advice for a better lifestyle', links:[772,783,876]},
+  {id: 601, url:'travel-indore-pure.com', text:'Travel guide to Ahmedabad with tips on food and sightseeing', links:[700,732]},
+  {id: 602, url:'book-new-reads.in', text:'Book reviews and reading recommendations for all ages', links:[601]},
+  {id: 603, url:'patna-news-today.in', text:'Breaking news and local updates from Delhi city', links:[19,534,605,760]},
+  {id: 604, url:'photography-best.com', text:'Photography tips and best camera gear reviewed this month', links:[19,874]},
+  {id: 605, url:'indore-news-today.in', text:'Breaking news and local updates from Bhopal city', links:[450,499]},
+  {id: 606, url:'learn-great-skills.in', text:'Online courses and skill-building workshops for students', links:[716,775,920]},
+  {id: 607, url:'startup-easy-india.com', text:'Startup stories and entrepreneurship advice from India', links:[907,912]},
+  {id: 608, url:'open-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[656,933]},
+  {id: 609, url:'book-easy-reads.in', text:'Book reviews and reading recommendations for all ages', links:[462,576,799]},
+  {id: 610, url:'health-crispy-14.com', text:'Health tips and fitness advice for a better lifestyle', links:[905,970]},
+  {id: 611, url:'book-top-reads.in', text:'Book reviews and reading recommendations for all ages', links:[346,434,489]},
+  {id: 612, url:'learn-tasty-skills.in', text:'Online courses and skill-building workshops for students', links:[1,568,721]},
+  {id: 613, url:'book-easy-reads.in', text:'Book reviews and reading recommendations for all ages', links:[875,970]},
+  {id: 614, url:'learn-top-skills.in', text:'Online courses and skill-building workshops for students', links:[997]},
+  {id: 615, url:'travel-chennai-pure.com', text:'Travel guide to Hyderabad with tips on food and sightseeing', links:[578,864,870]},
+  {id: 616, url:'startup-top-india.com', text:'Startup stories and entrepreneurship advice from India', links:[341,429,502]},
+  {id: 617, url:'photography-easy.com', text:'Photography tips and best camera gear reviewed this month', links:[757,942]},
+  {id: 618, url:'travel-indore-fresh.com', text:'Travel guide to Delhi with tips on food and sightseeing', links:[698,914,938]},
+  {id: 619, url:'yoga-great-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[807]},
+  {id: 620, url:'learn-best-skills.in', text:'Online courses and skill-building workshops for students', links:[450,860]},
+  {id: 621, url:'hyderabad-events-guide.com', text:'Events and things to do in Kolkata this weekend', links:[604,892,930]},
+  {id: 622, url:'sports-easy-fan.in', text:'Sports news and highlights from across the country', links:[689]},
+  {id: 623, url:'sports-bold-fan.in', text:'Sports news and highlights from across the country', links:[1,835]},
+  {id: 624, url:'recipe-local-87.com', text:'Easy home cooking recipes using simple ingredients', links:[703,764]},
+  {id: 625, url:'travel-indore-great.com', text:'Travel guide to Chennai with tips on food and sightseeing', links:[418,692]},
+  {id: 626, url:'health-true-21.com', text:'Health tips and fitness advice for a better lifestyle', links:[528,535,616]},
+  {id: 627, url:'chennai-news-today.in', text:'Breaking news and local updates from Indore city', links:[552,575]},
+  {id: 628, url:'patna-news-today.in', text:'Breaking news and local updates from Surat city', links:[463]},
+  {id: 629, url:'startup-true-india.com', text:'Startup stories and entrepreneurship advice from India', links:[384,722,835]},
+  {id: 630, url:'sports-new-fan.in', text:'Sports news and highlights from across the country', links:[528,865]},
+  {id: 631, url:'bhopal-news-today.in', text:'Breaking news and local updates from Surat city', links:[7,775,831,895]},
+  {id: 632, url:'recipe-cool-59.com', text:'Easy home cooking recipes using simple ingredients', links:[665,813,872]},
+  {id: 633, url:'travel-nagpur-quick.com', text:'Travel guide to Ahmedabad with tips on food and sightseeing', links:[712,969]},
+  {id: 634, url:'health-open-17.com', text:'Health tips and fitness advice for a better lifestyle', links:[693,969]},
+  {id: 635, url:'sports-tasty-fan.in', text:'Sports news and highlights from across the country', links:[715,723,752]},
+  {id: 636, url:'health-new-9.com', text:'Health tips and fitness advice for a better lifestyle', links:[443,575,617]},
+  {id: 637, url:'ahmedabad-events-guide.com', text:'Events and things to do in Patna this weekend', links:[494]},
+  {id: 638, url:'travel-bangalore-tasty.com', text:'Travel guide to Jaipur with tips on food and sightseeing', links:[665,871,888]},
+  {id: 639, url:'music-great-vibes.com', text:'New music releases and playlist picks for this week', links:[389,442,749]},
+  {id: 640, url:'travel-chennai-great.com', text:'Travel guide to Jaipur with tips on food and sightseeing', links:[802]},
+  {id: 641, url:'music-smart-vibes.com', text:'New music releases and playlist picks for this week', links:[361,604,694]},
+  {id: 642, url:'fine-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[519,632,893]},
+  {id: 643, url:'startup-pure-india.com', text:'Startup stories and entrepreneurship advice from India', links:[421,732,799]},
+  {id: 644, url:'sports-hot-fan.in', text:'Sports news and highlights from across the country', links:[687,773,988]},
+  {id: 645, url:'recipe-fresh-11.com', text:'Easy home cooking recipes using simple ingredients', links:[663]},
+  {id: 646, url:'music-great-vibes.com', text:'New music releases and playlist picks for this week', links:[618,797]},
+  {id: 647, url:'new-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[512,765]},
+  {id: 648, url:'travel-bangalore-local.com', text:'Travel guide to Nagpur with tips on food and sightseeing', links:[422,511,556]},
+  {id: 649, url:'fresh-tech-blog.in', text:'Latest tech news and gadget reviews from Jaipur', links:[748]},
+  {id: 650, url:'crispy-tech-blog.in', text:'Latest tech news and gadget reviews from Hyderabad', links:[741]},
+  {id: 651, url:'indore-news-today.in', text:'Breaking news and local updates from Hyderabad city', links:[475]},
+  {id: 652, url:'health-best-3.com', text:'Health tips and fitness advice for a better lifestyle', links:[820,829]},
+  {id: 653, url:'hyderabad-events-guide.com', text:'Events and things to do in Lucknow this weekend', links:[522,894,947]},
+  {id: 654, url:'startup-new-india.com', text:'Startup stories and entrepreneurship advice from India', links:[659,888,996]},
+  {id: 655, url:'sports-open-fan.in', text:'Sports news and highlights from across the country', links:[794]},
+  {id: 656, url:'recipe-great-20.com', text:'Easy home cooking recipes using simple ingredients', links:[877]},
+  {id: 657, url:'yoga-hot-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[349,889]},
+  {id: 658, url:'sports-true-fan.in', text:'Sports news and highlights from across the country', links:[640,953]},
+  {id: 659, url:'travel-lucknow-smart.com', text:'Travel guide to Chennai with tips on food and sightseeing', links:[596,746,789]},
+  {id: 660, url:'book-easy-reads.in', text:'Book reviews and reading recommendations for all ages', links:[19,610]},
+  {id: 661, url:'lucknow-news-today.in', text:'Breaking news and local updates from Bhopal city', links:[619,632,886]},
+  {id: 662, url:'recipe-quick-9.com', text:'Easy home cooking recipes using simple ingredients', links:[454,994]},
+  {id: 663, url:'sports-great-fan.in', text:'Sports news and highlights from across the country', links:[1,533,670]},
+  {id: 664, url:'mumbai-events-guide.com', text:'Events and things to do in Bangalore this weekend', links:[469,616]},
+  {id: 665, url:'book-best-reads.in', text:'Book reviews and reading recommendations for all ages', links:[356]},
+  {id: 666, url:'tasty-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[722,816]},
+  {id: 667, url:'travel-kolkata-fresh.com', text:'Travel guide to Patna with tips on food and sightseeing', links:[398]},
+  {id: 668, url:'recipe-fresh-70.com', text:'Easy home cooking recipes using simple ingredients', links:[597]},
+  {id: 669, url:'yoga-best-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[595,736,795]},
+  {id: 670, url:'travel-chennai-bold.com', text:'Travel guide to Indore with tips on food and sightseeing', links:[554,740,826]},
+  {id: 671, url:'music-super-vibes.com', text:'New music releases and playlist picks for this week', links:[12,384,875,904]},
+  {id: 672, url:'startup-amazing-india.com', text:'Startup stories and entrepreneurship advice from India', links:[564]},
+  {id: 673, url:'nagpur-news-today.in', text:'Breaking news and local updates from Ahmedabad city', links:[623]},
+  {id: 674, url:'recipe-local-2.com', text:'Easy home cooking recipes using simple ingredients', links:[499,828,952]},
+  {id: 675, url:'local-tech-blog.in', text:'Latest tech news and gadget reviews from Bangalore', links:[7,688,975,982]},
+  {id: 676, url:'startup-hot-india.com', text:'Startup stories and entrepreneurship advice from India', links:[469]},
+  {id: 677, url:'open-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[12,538,791]},
+  {id: 678, url:'hot-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[838]},
+  {id: 679, url:'hyderabad-events-guide.com', text:'Events and things to do in Lucknow this weekend', links:[922]},
+  {id: 680, url:'super-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[909,955]},
+  {id: 681, url:'bangalore-events-guide.com', text:'Events and things to do in Jaipur this weekend', links:[717,896]},
+  {id: 682, url:'photography-pure.com', text:'Photography tips and best camera gear reviewed this month', links:[360]},
+  {id: 683, url:'fine-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[405,738,893]},
+  {id: 684, url:'startup-true-india.com', text:'Startup stories and entrepreneurship advice from India', links:[969]},
+  {id: 685, url:'recipe-super-15.com', text:'Easy home cooking recipes using simple ingredients', links:[385,409,473]},
+  {id: 686, url:'travel-chennai-crispy.com', text:'Travel guide to Jaipur with tips on food and sightseeing', links:[926]},
+  {id: 687, url:'recipe-true-68.com', text:'Easy home cooking recipes using simple ingredients', links:[391,603,717]},
+  {id: 688, url:'book-fresh-reads.in', text:'Book reviews and reading recommendations for all ages - and cricket match viewing parties', links:[422,821,845]},
+  {id: 689, url:'travel-kolkata-open.com', text:'Travel guide to Indore with tips on food and sightseeing', links:[400,719]},
+  {id: 690, url:'music-pure-vibes.com', text:'New music releases and playlist picks for this week - including pizza and snacks at the venue', links:[420,562]},
+  {id: 691, url:'crispy-tech-blog.in', text:'Latest tech news and gadget reviews from Indore', links:[535,538]},
+  {id: 692, url:'surat-news-today.in', text:'Breaking news and local updates from Nagpur city', links:[449,767,913]},
+  {id: 693, url:'learn-smart-skills.in', text:'Online courses and skill-building workshops for students', links:[447,511,779]},
+  {id: 694, url:'ahmedabad-events-guide.com', text:'Events and things to do in Lucknow this weekend', links:[888]},
+  {id: 695, url:'sports-smart-fan.in', text:'Sports news and highlights from across the country', links:[673,722,764]},
+  {id: 696, url:'recipe-super-78.com', text:'Easy home cooking recipes using simple ingredients', links:[560,726,905]},
+  {id: 697, url:'music-smart-vibes.com', text:'New music releases and playlist picks for this week', links:[341,748]},
+  {id: 698, url:'music-fine-vibes.com', text:'New music releases and playlist picks for this week - and cricket match viewing parties', links:[347,648]},
+  {id: 699, url:'patna-news-today.in', text:'Breaking news and local updates from Kolkata city - and movie screening events', links:[865,911,926]},
+  {id: 700, url:'health-crispy-3.com', text:'Health tips and fitness advice for a better lifestyle', links:[482]},
+  {id: 701, url:'surat-job-board.com', text:'Job listings and career advice for fresh graduates', links:[435,648]},
+  {id: 702, url:'learn-quick-skills.in', text:'Online courses and skill-building workshops for students', links:[518,673,836]},
+  {id: 703, url:'indore-job-board.com', text:'Job listings and career advice for fresh graduates', links:[951]},
+  {id: 704, url:'travel-indore-new.com', text:'Travel guide to Ahmedabad with tips on food and sightseeing - including pizza and snacks at the venue', links:[697,786]},
+  {id: 705, url:'yoga-crispy-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[958]},
+  {id: 706, url:'startup-easy-india.com', text:'Startup stories and entrepreneurship advice from India - including pizza and snacks at the venue', links:[17,894,920]},
+  {id: 707, url:'book-local-reads.in', text:'Book reviews and reading recommendations for all ages', links:[744,798,951]},
+  {id: 708, url:'local-tech-blog.in', text:'Latest tech news and gadget reviews from Ahmedabad', links:[476,492]},
+  {id: 709, url:'sports-new-fan.in', text:'Sports news and highlights from across the country', links:[428,609,750]},
+  {id: 710, url:'recipe-hot-98.com', text:'Easy home cooking recipes using simple ingredients', links:[543,746,841]},
+  {id: 711, url:'lucknow-news-today.in', text:'Breaking news and local updates from Surat city', links:[414,589,593]},
+  {id: 712, url:'recipe-super-88.com', text:'Easy home cooking recipes using simple ingredients', links:[456]},
+  {id: 713, url:'recipe-smart-45.com', text:'Easy home cooking recipes using simple ingredients', links:[365,950]},
+  {id: 714, url:'health-smart-40.com', text:'Health tips and fitness advice for a better lifestyle', links:[490,980]},
+  {id: 715, url:'patna-job-board.com', text:'Job listings and career advice for fresh graduates', links:[1,428,500,724]},
+  {id: 716, url:'surat-news-today.in', text:'Breaking news and local updates from Bangalore city', links:[355,692]},
+  {id: 717, url:'amazing-tech-blog.in', text:'Latest tech news and gadget reviews from Jaipur', links:[555,892]},
+  {id: 718, url:'lucknow-events-guide.com', text:'Events and things to do in Bhopal this weekend', links:[485,979]},
+  {id: 719, url:'startup-best-india.com', text:'Startup stories and entrepreneurship advice from India', links:[385,602,881]},
+  {id: 720, url:'music-quick-vibes.com', text:'New music releases and playlist picks for this week', links:[395,618,818]},
+  {id: 721, url:'travel-delhi-easy.com', text:'Travel guide to Nagpur with tips on food and sightseeing', links:[360,451,709]},
+  {id: 722, url:'nagpur-job-board.com', text:'Job listings and career advice for fresh graduates', links:[442,862]},
+  {id: 723, url:'sports-fine-fan.in', text:'Sports news and highlights from across the country', links:[544]},
+  {id: 724, url:'sports-open-fan.in', text:'Sports news and highlights from across the country', links:[381]},
+  {id: 725, url:'hyderabad-events-guide.com', text:'Events and things to do in Kolkata this weekend', links:[359,501,696]},
+  {id: 726, url:'amazing-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[404,623,982]},
+  {id: 727, url:'recipe-best-72.com', text:'Easy home cooking recipes using simple ingredients', links:[496]},
+  {id: 728, url:'recipe-hot-12.com', text:'Easy home cooking recipes using simple ingredients', links:[573,969,982]},
+  {id: 729, url:'learn-hot-skills.in', text:'Online courses and skill-building workshops for students', links:[678,961]},
+  {id: 730, url:'health-quick-42.com', text:'Health tips and fitness advice for a better lifestyle', links:[482,548,657]},
+  {id: 731, url:'lucknow-job-board.com', text:'Job listings and career advice for fresh graduates', links:[489,920]},
+  {id: 732, url:'fresh-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[462,529,666]},
+  {id: 733, url:'health-best-49.com', text:'Health tips and fitness advice for a better lifestyle', links:[651,763]},
+  {id: 734, url:'patna-job-board.com', text:'Job listings and career advice for fresh graduates', links:[2,496,533,621]},
+  {id: 735, url:'travel-bhopal-fine.com', text:'Travel guide to Surat with tips on food and sightseeing', links:[577,952,969]},
+  {id: 736, url:'startup-best-india.com', text:'Startup stories and entrepreneurship advice from India', links:[478,830,856]},
+  {id: 737, url:'sports-smart-fan.in', text:'Sports news and highlights from across the country', links:[2,827,845]},
+  {id: 738, url:'mumbai-news-today.in', text:'Breaking news and local updates from Ahmedabad city', links:[617]},
+  {id: 739, url:'indore-news-today.in', text:'Breaking news and local updates from Nagpur city', links:[408]},
+  {id: 740, url:'sports-fine-fan.in', text:'Sports news and highlights from across the country', links:[593,810]},
+  {id: 741, url:'photography-top.com', text:'Photography tips and best camera gear reviewed this month', links:[661,745]},
+  {id: 742, url:'book-new-reads.in', text:'Book reviews and reading recommendations for all ages', links:[12,380,875,998]},
+  {id: 743, url:'yoga-top-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[873]},
+  {id: 744, url:'book-top-reads.in', text:'Book reviews and reading recommendations for all ages', links:[391,535,987]},
+  {id: 745, url:'recipe-amazing-37.com', text:'Easy home cooking recipes using simple ingredients', links:[642,969]},
+  {id: 746, url:'book-pure-reads.in', text:'Book reviews and reading recommendations for all ages', links:[433,804]},
+  {id: 747, url:'cool-tech-blog.in', text:'Latest tech news and gadget reviews from Bhopal', links:[479,743,901]},
+  {id: 748, url:'sports-best-fan.in', text:'Sports news and highlights from across the country', links:[433,547,807]},
+  {id: 749, url:'book-cool-reads.in', text:'Book reviews and reading recommendations for all ages', links:[12,434]},
+  {id: 750, url:'startup-smart-india.com', text:'Startup stories and entrepreneurship advice from India', links:[734,865,968]},
+  {id: 751, url:'recipe-open-49.com', text:'Easy home cooking recipes using simple ingredients - and cricket match viewing parties', links:[494,921]},
+  {id: 752, url:'health-cool-50.com', text:'Health tips and fitness advice for a better lifestyle', links:[656,657]},
+  {id: 753, url:'sports-amazing-fan.in', text:'Sports news and highlights from across the country', links:[475]},
+  {id: 754, url:'travel-surat-great.com', text:'Travel guide to Mumbai with tips on food and sightseeing', links:[346,898]},
+  {id: 755, url:'sports-local-fan.in', text:'Sports news and highlights from across the country', links:[761,806,829]},
+  {id: 756, url:'learn-fine-skills.in', text:'Online courses and skill-building workshops for students - and movie screening events', links:[2,553,912,985]},
+  {id: 757, url:'travel-nagpur-smart.com', text:'Travel guide to Mumbai with tips on food and sightseeing', links:[933]},
+  {id: 758, url:'music-super-vibes.com', text:'New music releases and playlist picks for this week', links:[452]},
+  {id: 759, url:'health-cool-44.com', text:'Health tips and fitness advice for a better lifestyle', links:[917,928,951]},
+  {id: 760, url:'sports-new-fan.in', text:'Sports news and highlights from across the country', links:[436]},
+  {id: 761, url:'smart-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[779]},
+  {id: 762, url:'amazing-tech-blog.in', text:'Latest tech news and gadget reviews from Jaipur', links:[622,678,881]},
+  {id: 763, url:'indore-news-today.in', text:'Breaking news and local updates from Chennai city', links:[927]},
+  {id: 764, url:'startup-pure-india.com', text:'Startup stories and entrepreneurship advice from India', links:[635,961]},
+  {id: 765, url:'yoga-super-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[473,703,980]},
+  {id: 766, url:'sports-pure-fan.in', text:'Sports news and highlights from across the country', links:[525,846]},
+  {id: 767, url:'indore-news-today.in', text:'Breaking news and local updates from Hyderabad city', links:[19,462]},
+  {id: 768, url:'photography-crispy.com', text:'Photography tips and best camera gear reviewed this month', links:[972]},
+  {id: 769, url:'recipe-top-43.com', text:'Easy home cooking recipes using simple ingredients', links:[352,558,997]},
+  {id: 770, url:'music-great-vibes.com', text:'New music releases and playlist picks for this week', links:[648,860]},
+  {id: 771, url:'photography-best.com', text:'Photography tips and best camera gear reviewed this month', links:[690,746]},
+  {id: 772, url:'learn-best-skills.in', text:'Online courses and skill-building workshops for students', links:[679]},
+  {id: 773, url:'nagpur-job-board.com', text:'Job listings and career advice for fresh graduates', links:[377,480]},
+  {id: 774, url:'startup-bold-india.com', text:'Startup stories and entrepreneurship advice from India', links:[684,764,815]},
+  {id: 775, url:'travel-patna-pure.com', text:'Travel guide to Hyderabad with tips on food and sightseeing', links:[17,664,890,910]},
+  {id: 776, url:'startup-super-india.com', text:'Startup stories and entrepreneurship advice from India', links:[408,493]},
+  {id: 777, url:'travel-kolkata-easy.com', text:'Travel guide to Nagpur with tips on food and sightseeing', links:[926]},
+  {id: 778, url:'health-fine-8.com', text:'Health tips and fitness advice for a better lifestyle', links:[373,663]},
+  {id: 779, url:'true-tech-blog.in', text:'Latest tech news and gadget reviews from Chennai', links:[562,879]},
+  {id: 780, url:'smart-tech-blog.in', text:'Latest tech news and gadget reviews from Bhopal - and cricket match viewing parties', links:[796]},
+  {id: 781, url:'photography-true.com', text:'Photography tips and best camera gear reviewed this month', links:[535]},
+  {id: 782, url:'sports-pure-fan.in', text:'Sports news and highlights from across the country', links:[441,487]},
+  {id: 783, url:'nagpur-events-guide.com', text:'Events and things to do in Bangalore this weekend', links:[812]},
+  {id: 784, url:'yoga-pure-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[386,950]},
+  {id: 785, url:'bold-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[875]},
+  {id: 786, url:'book-amazing-reads.in', text:'Book reviews and reading recommendations for all ages - and movie screening events', links:[546,555,669]},
+  {id: 787, url:'music-open-vibes.com', text:'New music releases and playlist picks for this week', links:[7,461,620]},
+  {id: 788, url:'best-tech-blog.in', text:'Latest tech news and gadget reviews from Surat', links:[552]},
+  {id: 789, url:'kolkata-events-guide.com', text:'Events and things to do in Hyderabad this weekend', links:[591,631,929]},
+  {id: 790, url:'music-fine-vibes.com', text:'New music releases and playlist picks for this week', links:[19,392,474,796]},
+  {id: 791, url:'travel-delhi-easy.com', text:'Travel guide to Mumbai with tips on food and sightseeing', links:[524,952]},
+  {id: 792, url:'startup-bold-india.com', text:'Startup stories and entrepreneurship advice from India', links:[543,681]},
+  {id: 793, url:'startup-open-india.com', text:'Startup stories and entrepreneurship advice from India - and exam preparation workshops', links:[7,436,475,821]},
+  {id: 794, url:'startup-bold-india.com', text:'Startup stories and entrepreneurship advice from India', links:[488]},
+  {id: 795, url:'learn-great-skills.in', text:'Online courses and skill-building workshops for students', links:[528,679]},
+  {id: 796, url:'kolkata-job-board.com', text:'Job listings and career advice for fresh graduates', links:[407]},
+  {id: 797, url:'true-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[630]},
+  {id: 798, url:'learn-new-skills.in', text:'Online courses and skill-building workshops for students', links:[756]},
+  {id: 799, url:'photography-crispy.com', text:'Photography tips and best camera gear reviewed this month', links:[413,650,887]},
+  {id: 800, url:'learn-tasty-skills.in', text:'Online courses and skill-building workshops for students', links:[903]},
+  {id: 801, url:'sports-easy-fan.in', text:'Sports news and highlights from across the country - and cricket match viewing parties', links:[782,786,947]},
+  {id: 802, url:'open-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[420]},
+  {id: 803, url:'book-new-reads.in', text:'Book reviews and reading recommendations for all ages', links:[948]},
+  {id: 804, url:'open-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[521,656]},
+  {id: 805, url:'fine-tech-blog.in', text:'Latest tech news and gadget reviews from Delhi', links:[676,729,848]},
+  {id: 806, url:'travel-delhi-quick.com', text:'Travel guide to Patna with tips on food and sightseeing', links:[341,491,993]},
+  {id: 807, url:'sports-open-fan.in', text:'Sports news and highlights from across the country', links:[541,798,933]},
+  {id: 808, url:'kolkata-job-board.com', text:'Job listings and career advice for fresh graduates', links:[652,693,786]},
+  {id: 809, url:'learn-best-skills.in', text:'Online courses and skill-building workshops for students', links:[17,471,642,754]},
+  {id: 810, url:'travel-mumbai-open.com', text:'Travel guide to Patna with tips on food and sightseeing', links:[629]},
+  {id: 811, url:'ahmedabad-news-today.in', text:'Breaking news and local updates from Indore city', links:[666,732,756]},
+  {id: 812, url:'chennai-events-guide.com', text:'Events and things to do in Nagpur this weekend', links:[533]},
+  {id: 813, url:'yoga-smart-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[636]},
+  {id: 814, url:'startup-hot-india.com', text:'Startup stories and entrepreneurship advice from India', links:[12,357]},
+  {id: 815, url:'startup-tasty-india.com', text:'Startup stories and entrepreneurship advice from India', links:[12,427]},
+  {id: 816, url:'yoga-bold-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[776,960,980]},
+  {id: 817, url:'ahmedabad-events-guide.com', text:'Events and things to do in Lucknow this weekend', links:[572,704]},
+  {id: 818, url:'learn-best-skills.in', text:'Online courses and skill-building workshops for students', links:[583,616,855]},
+  {id: 819, url:'surat-events-guide.com', text:'Events and things to do in Kolkata this weekend - including pizza and snacks at the venue', links:[456,718,836]},
+  {id: 820, url:'book-fresh-reads.in', text:'Book reviews and reading recommendations for all ages', links:[627,817,881]},
+  {id: 821, url:'surat-events-guide.com', text:'Events and things to do in Delhi this weekend', links:[420,894,990]},
+  {id: 822, url:'music-fine-vibes.com', text:'New music releases and playlist picks for this week - and movie screening events', links:[352,805,821]},
+  {id: 823, url:'sports-new-fan.in', text:'Sports news and highlights from across the country', links:[642,702]},
+  {id: 824, url:'travel-indore-fine.com', text:'Travel guide to Indore with tips on food and sightseeing', links:[403,607,986]},
+  {id: 825, url:'health-new-4.com', text:'Health tips and fitness advice for a better lifestyle', links:[368,981]},
+  {id: 826, url:'hot-tech-blog.in', text:'Latest tech news and gadget reviews from Lucknow - and movie screening events', links:[476,972]},
+  {id: 827, url:'yoga-great-life.in', text:'Yoga and meditation routines for daily wellness practice - including pizza and snacks at the venue', links:[495,519,947]},
+  {id: 828, url:'cool-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[526,582,838]},
+  {id: 829, url:'yoga-top-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[489]},
+  {id: 830, url:'yoga-hot-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[584,733]},
+  {id: 831, url:'book-cool-reads.in', text:'Book reviews and reading recommendations for all ages', links:[396,694,999]},
+  {id: 832, url:'yoga-crispy-life.in', text:'Yoga and meditation routines for daily wellness practice - and exam preparation workshops', links:[649,828]},
+  {id: 833, url:'photography-open.com', text:'Photography tips and best camera gear reviewed this month', links:[12,609,740,826]},
+  {id: 834, url:'travel-hyderabad-bold.com', text:'Travel guide to Ahmedabad with tips on food and sightseeing', links:[383,440,886]},
+  {id: 835, url:'yoga-tasty-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[617,620,684]},
+  {id: 836, url:'great-tech-blog.in', text:'Latest tech news and gadget reviews from Nagpur', links:[588,944]},
+  {id: 837, url:'kolkata-events-guide.com', text:'Events and things to do in Nagpur this weekend', links:[661]},
+  {id: 838, url:'startup-best-india.com', text:'Startup stories and entrepreneurship advice from India', links:[1,762]},
+  {id: 839, url:'startup-bold-india.com', text:'Startup stories and entrepreneurship advice from India', links:[17,538,598,631]},
+  {id: 840, url:'top-tech-blog.in', text:'Latest tech news and gadget reviews from Surat', links:[955]},
+  {id: 841, url:'book-crispy-reads.in', text:'Book reviews and reading recommendations for all ages', links:[474,725,921]},
+  {id: 842, url:'health-crispy-45.com', text:'Health tips and fitness advice for a better lifestyle', links:[418,819]},
+  {id: 843, url:'hyderabad-job-board.com', text:'Job listings and career advice for fresh graduates', links:[506,604,672]},
+  {id: 844, url:'music-top-vibes.com', text:'New music releases and playlist picks for this week', links:[402,605]},
+  {id: 845, url:'music-cool-vibes.com', text:'New music releases and playlist picks for this week', links:[546,966]},
+  {id: 846, url:'startup-true-india.com', text:'Startup stories and entrepreneurship advice from India', links:[564,782,970]},
+  {id: 847, url:'jaipur-job-board.com', text:'Job listings and career advice for fresh graduates', links:[17,376]},
+  {id: 848, url:'book-great-reads.in', text:'Book reviews and reading recommendations for all ages', links:[19,851]},
+  {id: 849, url:'travel-mumbai-easy.com', text:'Travel guide to Hyderabad with tips on food and sightseeing', links:[19,741,930]},
+  {id: 850, url:'photography-true.com', text:'Photography tips and best camera gear reviewed this month', links:[412,895]},
+  {id: 851, url:'recipe-true-16.com', text:'Easy home cooking recipes using simple ingredients', links:[651,682]},
+  {id: 852, url:'startup-fresh-india.com', text:'Startup stories and entrepreneurship advice from India', links:[423,811]},
+  {id: 853, url:'music-quick-vibes.com', text:'New music releases and playlist picks for this week', links:[734]},
+  {id: 854, url:'music-easy-vibes.com', text:'New music releases and playlist picks for this week', links:[427,708,839]},
+  {id: 855, url:'sports-quick-fan.in', text:'Sports news and highlights from across the country', links:[366]},
+  {id: 856, url:'learn-local-skills.in', text:'Online courses and skill-building workshops for students', links:[895]},
+  {id: 857, url:'sports-open-fan.in', text:'Sports news and highlights from across the country', links:[357,378]},
+  {id: 858, url:'top-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[877]},
+  {id: 859, url:'startup-open-india.com', text:'Startup stories and entrepreneurship advice from India', links:[378,414,579]},
+  {id: 860, url:'sports-best-fan.in', text:'Sports news and highlights from across the country', links:[19,387,474,589]},
+  {id: 861, url:'travel-hyderabad-crispy.com', text:'Travel guide to Jaipur with tips on food and sightseeing', links:[406,449,457]},
+  {id: 862, url:'photography-fine.com', text:'Photography tips and best camera gear reviewed this month', links:[777]},
+  {id: 863, url:'yoga-easy-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[481,900,931]},
+  {id: 864, url:'photography-quick.com', text:'Photography tips and best camera gear reviewed this month', links:[2,405,518,684]},
+  {id: 865, url:'photography-tasty.com', text:'Photography tips and best camera gear reviewed this month', links:[509,908]},
+  {id: 866, url:'surat-job-board.com', text:'Job listings and career advice for fresh graduates - including pizza and snacks at the venue', links:[12,502,726,969]},
+  {id: 867, url:'best-tech-blog.in', text:'Latest tech news and gadget reviews from Mumbai', links:[949]},
+  {id: 868, url:'recipe-true-89.com', text:'Easy home cooking recipes using simple ingredients', links:[997]},
+  {id: 869, url:'sports-tasty-fan.in', text:'Sports news and highlights from across the country', links:[967]},
+  {id: 870, url:'learn-cool-skills.in', text:'Online courses and skill-building workshops for students', links:[431,649,984]},
+  {id: 871, url:'travel-lucknow-local.com', text:'Travel guide to Chennai with tips on food and sightseeing', links:[438,711,975]},
+  {id: 872, url:'lucknow-events-guide.com', text:'Events and things to do in Chennai this weekend', links:[395,554,624]},
+  {id: 873, url:'photography-hot.com', text:'Photography tips and best camera gear reviewed this month', links:[521,850]},
+  {id: 874, url:'mumbai-job-board.com', text:'Job listings and career advice for fresh graduates - and movie screening events', links:[555,786]},
+  {id: 875, url:'learn-bold-skills.in', text:'Online courses and skill-building workshops for students - including pizza and snacks at the venue', links:[370,502,521]},
+  {id: 876, url:'fresh-tech-blog.in', text:'Latest tech news and gadget reviews from Chennai', links:[674,770,935]},
+  {id: 877, url:'startup-super-india.com', text:'Startup stories and entrepreneurship advice from India', links:[674]},
+  {id: 878, url:'indore-news-today.in', text:'Breaking news and local updates from Ahmedabad city', links:[416,566]},
+  {id: 879, url:'sports-top-fan.in', text:'Sports news and highlights from across the country', links:[562]},
+  {id: 880, url:'sports-cool-fan.in', text:'Sports news and highlights from across the country', links:[809]},
+  {id: 881, url:'startup-smart-india.com', text:'Startup stories and entrepreneurship advice from India', links:[19,684]},
+  {id: 882, url:'learn-top-skills.in', text:'Online courses and skill-building workshops for students', links:[817]},
+  {id: 883, url:'health-super-15.com', text:'Health tips and fitness advice for a better lifestyle', links:[501,968,995]},
+  {id: 884, url:'learn-open-skills.in', text:'Online courses and skill-building workshops for students', links:[762]},
+  {id: 885, url:'sports-quick-fan.in', text:'Sports news and highlights from across the country', links:[355,626]},
+  {id: 886, url:'book-local-reads.in', text:'Book reviews and reading recommendations for all ages', links:[568,935]},
+  {id: 887, url:'learn-hot-skills.in', text:'Online courses and skill-building workshops for students', links:[768]},
+  {id: 888, url:'travel-jaipur-pure.com', text:'Travel guide to Mumbai with tips on food and sightseeing', links:[441,831]},
+  {id: 889, url:'delhi-news-today.in', text:'Breaking news and local updates from Lucknow city', links:[476,564,757]},
+  {id: 890, url:'nagpur-news-today.in', text:'Breaking news and local updates from Delhi city - and movie screening events', links:[811]},
+  {id: 891, url:'book-new-reads.in', text:'Book reviews and reading recommendations for all ages - and exam preparation workshops', links:[482,756]},
+  {id: 892, url:'yoga-smart-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[19,342,984,990]},
+  {id: 893, url:'pure-finance-tips.in', text:'Personal finance guide - save money and invest wisely - and exam preparation workshops', links:[897,969]},
+  {id: 894, url:'bhopal-news-today.in', text:'Breaking news and local updates from Nagpur city', links:[397,868]},
+  {id: 895, url:'startup-smart-india.com', text:'Startup stories and entrepreneurship advice from India', links:[733]},
+  {id: 896, url:'learn-top-skills.in', text:'Online courses and skill-building workshops for students', links:[914]},
+  {id: 897, url:'indore-events-guide.com', text:'Events and things to do in Bhopal this weekend', links:[12,585,893]},
+  {id: 898, url:'book-new-reads.in', text:'Book reviews and reading recommendations for all ages', links:[555,571,669]},
+  {id: 899, url:'music-pure-vibes.com', text:'New music releases and playlist picks for this week', links:[396,405]},
+  {id: 900, url:'sports-true-fan.in', text:'Sports news and highlights from across the country', links:[822]},
+  {id: 901, url:'startup-open-india.com', text:'Startup stories and entrepreneurship advice from India', links:[717,977]},
+  {id: 902, url:'book-fresh-reads.in', text:'Book reviews and reading recommendations for all ages', links:[423,430]},
+  {id: 903, url:'health-amazing-5.com', text:'Health tips and fitness advice for a better lifestyle', links:[455,492]},
+  {id: 904, url:'yoga-quick-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[364,641,767]},
+  {id: 905, url:'bangalore-events-guide.com', text:'Events and things to do in Jaipur this weekend', links:[362,639]},
+  {id: 906, url:'travel-patna-local.com', text:'Travel guide to Patna with tips on food and sightseeing', links:[684,762,934]},
+  {id: 907, url:'startup-super-india.com', text:'Startup stories and entrepreneurship advice from India', links:[796,883,902]},
+  {id: 908, url:'learn-hot-skills.in', text:'Online courses and skill-building workshops for students', links:[516,607]},
+  {id: 909, url:'amazing-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[492]},
+  {id: 910, url:'sports-cool-fan.in', text:'Sports news and highlights from across the country', links:[889]},
+  {id: 911, url:'health-hot-11.com', text:'Health tips and fitness advice for a better lifestyle', links:[665]},
+  {id: 912, url:'sports-great-fan.in', text:'Sports news and highlights from across the country', links:[917]},
+  {id: 913, url:'startup-super-india.com', text:'Startup stories and entrepreneurship advice from India', links:[722]},
+  {id: 914, url:'health-open-20.com', text:'Health tips and fitness advice for a better lifestyle', links:[755]},
+  {id: 915, url:'photography-hot.com', text:'Photography tips and best camera gear reviewed this month', links:[345,500]},
+  {id: 916, url:'lucknow-events-guide.com', text:'Events and things to do in Kolkata this weekend', links:[637,826]},
+  {id: 917, url:'photography-new.com', text:'Photography tips and best camera gear reviewed this month', links:[456,687,793]},
+  {id: 918, url:'mumbai-job-board.com', text:'Job listings and career advice for fresh graduates', links:[366,460,656]},
+  {id: 919, url:'yoga-local-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[19,675]},
+  {id: 920, url:'surat-news-today.in', text:'Breaking news and local updates from Lucknow city', links:[12,364,541]},
+  {id: 921, url:'startup-fresh-india.com', text:'Startup stories and entrepreneurship advice from India', links:[540,843]},
+  {id: 922, url:'learn-pure-skills.in', text:'Online courses and skill-building workshops for students', links:[492,710,748]},
+  {id: 923, url:'recipe-smart-50.com', text:'Easy home cooking recipes using simple ingredients', links:[694,700]},
+  {id: 924, url:'sports-open-fan.in', text:'Sports news and highlights from across the country', links:[766,794,795]},
+  {id: 925, url:'photography-tasty.com', text:'Photography tips and best camera gear reviewed this month', links:[483,943]},
+  {id: 926, url:'health-quick-20.com', text:'Health tips and fitness advice for a better lifestyle', links:[408,684,946]},
+  {id: 927, url:'best-tech-blog.in', text:'Latest tech news and gadget reviews from Ahmedabad', links:[520,765]},
+  {id: 928, url:'book-new-reads.in', text:'Book reviews and reading recommendations for all ages', links:[545]},
+  {id: 929, url:'recipe-amazing-71.com', text:'Easy home cooking recipes using simple ingredients', links:[652,941]},
+  {id: 930, url:'book-bold-reads.in', text:'Book reviews and reading recommendations for all ages', links:[498]},
+  {id: 931, url:'startup-true-india.com', text:'Startup stories and entrepreneurship advice from India', links:[524,635,768]},
+  {id: 932, url:'book-local-reads.in', text:'Book reviews and reading recommendations for all ages - and movie screening events', links:[409,955]},
+  {id: 933, url:'learn-true-skills.in', text:'Online courses and skill-building workshops for students', links:[828,985]},
+  {id: 934, url:'yoga-crispy-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[358,606,930]},
+  {id: 935, url:'travel-bangalore-super.com', text:'Travel guide to Jaipur with tips on food and sightseeing', links:[706]},
+  {id: 936, url:'music-smart-vibes.com', text:'New music releases and playlist picks for this week', links:[390,637]},
+  {id: 937, url:'startup-fresh-india.com', text:'Startup stories and entrepreneurship advice from India', links:[437,528,955]},
+  {id: 938, url:'kolkata-events-guide.com', text:'Events and things to do in Patna this weekend', links:[17,618,649,712]},
+  {id: 939, url:'hot-finance-tips.in', text:'Personal finance guide - save money and invest wisely - and movie screening events', links:[762,837]},
+  {id: 940, url:'bangalore-job-board.com', text:'Job listings and career advice for fresh graduates', links:[856]},
+  {id: 941, url:'bhopal-news-today.in', text:'Breaking news and local updates from Lucknow city', links:[457,885,905]},
+  {id: 942, url:'delhi-job-board.com', text:'Job listings and career advice for fresh graduates', links:[358]},
+  {id: 943, url:'music-smart-vibes.com', text:'New music releases and playlist picks for this week', links:[876,953]},
+  {id: 944, url:'cool-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[462]},
+  {id: 945, url:'yoga-hot-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[1,469,555]},
+  {id: 946, url:'recipe-crispy-10.com', text:'Easy home cooking recipes using simple ingredients - and exam preparation workshops', links:[19,384,542]},
+  {id: 947, url:'surat-events-guide.com', text:'Events and things to do in Mumbai this weekend', links:[385,408]},
+  {id: 948, url:'travel-bhopal-crispy.com', text:'Travel guide to Bhopal with tips on food and sightseeing', links:[545,551,942]},
+  {id: 949, url:'best-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[625,697,934]},
+  {id: 950, url:'yoga-pure-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[17,588,858,924]},
+  {id: 951, url:'photography-best.com', text:'Photography tips and best camera gear reviewed this month', links:[516,537,629]},
+  {id: 952, url:'mumbai-events-guide.com', text:'Events and things to do in Indore this weekend', links:[857]},
+  {id: 953, url:'sports-smart-fan.in', text:'Sports news and highlights from across the country', links:[791]},
+  {id: 954, url:'cool-tech-blog.in', text:'Latest tech news and gadget reviews from Patna', links:[560,775]},
+  {id: 955, url:'recipe-crispy-98.com', text:'Easy home cooking recipes using simple ingredients', links:[2,818]},
+  {id: 956, url:'sports-smart-fan.in', text:'Sports news and highlights from across the country', links:[382,425,676]},
+  {id: 957, url:'recipe-amazing-59.com', text:'Easy home cooking recipes using simple ingredients', links:[572,795]},
+  {id: 958, url:'music-tasty-vibes.com', text:'New music releases and playlist picks for this week', links:[828]},
+  {id: 959, url:'cool-finance-tips.in', text:'Personal finance guide - save money and invest wisely - and exam preparation workshops', links:[448,746,789]},
+  {id: 960, url:'startup-fresh-india.com', text:'Startup stories and entrepreneurship advice from India', links:[751,945]},
+  {id: 961, url:'book-cool-reads.in', text:'Book reviews and reading recommendations for all ages - and cricket match viewing parties', links:[546,950]},
+  {id: 962, url:'recipe-crispy-30.com', text:'Easy home cooking recipes using simple ingredients', links:[626,852,936]},
+  {id: 963, url:'photography-easy.com', text:'Photography tips and best camera gear reviewed this month', links:[755,837,958]},
+  {id: 964, url:'health-bold-7.com', text:'Health tips and fitness advice for a better lifestyle', links:[577,850]},
+  {id: 965, url:'health-best-7.com', text:'Health tips and fitness advice for a better lifestyle', links:[851]},
+  {id: 966, url:'health-easy-39.com', text:'Health tips and fitness advice for a better lifestyle', links:[651]},
+  {id: 967, url:'fresh-tech-blog.in', text:'Latest tech news and gadget reviews from Nagpur', links:[547,818]},
+  {id: 968, url:'sports-true-fan.in', text:'Sports news and highlights from across the country', links:[1,692,894,900]},
+  {id: 969, url:'recipe-crispy-50.com', text:'Easy home cooking recipes using simple ingredients', links:[2,794,811]},
+  {id: 970, url:'nagpur-events-guide.com', text:'Events and things to do in Patna this weekend', links:[19,509,782,844]},
+  {id: 971, url:'recipe-true-98.com', text:'Easy home cooking recipes using simple ingredients', links:[843,893,908]},
+  {id: 972, url:'sports-open-fan.in', text:'Sports news and highlights from across the country', links:[398,610,741]},
+  {id: 973, url:'recipe-fine-87.com', text:'Easy home cooking recipes using simple ingredients', links:[1,403,669]},
+  {id: 974, url:'health-smart-23.com', text:'Health tips and fitness advice for a better lifestyle', links:[368,690,982]},
+  {id: 975, url:'recipe-smart-46.com', text:'Easy home cooking recipes using simple ingredients', links:[591]},
+  {id: 976, url:'startup-amazing-india.com', text:'Startup stories and entrepreneurship advice from India', links:[408,458,653]},
+  {id: 977, url:'travel-lucknow-super.com', text:'Travel guide to Mumbai with tips on food and sightseeing', links:[868,922]},
+  {id: 978, url:'music-best-vibes.com', text:'New music releases and playlist picks for this week', links:[363,665,727]},
+  {id: 979, url:'new-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[443,551]},
+  {id: 980, url:'bhopal-events-guide.com', text:'Events and things to do in Bhopal this weekend', links:[970]},
+  {id: 981, url:'recipe-quick-64.com', text:'Easy home cooking recipes using simple ingredients', links:[889]},
+  {id: 982, url:'music-top-vibes.com', text:'New music releases and playlist picks for this week', links:[572,752,980]},
+  {id: 983, url:'new-tech-blog.in', text:'Latest tech news and gadget reviews from Delhi', links:[409,921]},
+  {id: 984, url:'sports-tasty-fan.in', text:'Sports news and highlights from across the country', links:[650]},
+  {id: 985, url:'music-tasty-vibes.com', text:'New music releases and playlist picks for this week', links:[545,765]},
+  {id: 986, url:'learn-pure-skills.in', text:'Online courses and skill-building workshops for students', links:[360,525,983]},
+  {id: 987, url:'yoga-cool-life.in', text:'Yoga and meditation routines for daily wellness practice', links:[819]},
+  {id: 988, url:'startup-open-india.com', text:'Startup stories and entrepreneurship advice from India', links:[2,920,982]},
+  {id: 989, url:'bold-finance-tips.in', text:'Personal finance guide - save money and invest wisely', links:[648]},
+  {id: 990, url:'recipe-super-9.com', text:'Easy home cooking recipes using simple ingredients', links:[614,634]},
+  {id: 991, url:'music-fine-vibes.com', text:'New music releases and playlist picks for this week', links:[1,457]},
+  {id: 992, url:'bhopal-news-today.in', text:'Breaking news and local updates from Patna city', links:[787,914]},
+  {id: 993, url:'mumbai-job-board.com', text:'Job listings and career advice for fresh graduates', links:[370,480]},
+  {id: 994, url:'photography-great.com', text:'Photography tips and best camera gear reviewed this month', links:[384]},
+  {id: 995, url:'sports-best-fan.in', text:'Sports news and highlights from across the country - including pizza and snacks at the venue', links:[646,957]},
+  {id: 996, url:'ahmedabad-job-board.com', text:'Job listings and career advice for fresh graduates', links:[433,484,747]},
+  {id: 997, url:'learn-pure-skills.in', text:'Online courses and skill-building workshops for students', links:[598,878,935]},
+  {id: 998, url:'local-tech-blog.in', text:'Latest tech news and gadget reviews from Surat', links:[678,939]},
+  {id: 999, url:'photography-local.com', text:'Photography tips and best camera gear reviewed this month', links:[2,488]},
+  {id:1000, url:'music-bold-vibes.com', text:'New music releases and playlist picks for this week', links:[398,843,887]},
+];
+
+const N = pages.length;  // 1000
+
+// ── Pre-compute inbound link counts ──
+const linksIn = {};
+pages.forEach(p => { linksIn[p.id] = 0; });
+pages.forEach(p => { p.links.forEach(t => { if (linksIn[t] !== undefined) linksIn[t]++; }); });
+
+// ── Count total links in the whole graph ──
+const totalLinks = pages.reduce((s, p) => s + p.links.length, 0);
+document.getElementById('statLinks').textContent = totalLinks.toLocaleString();
+
+// ═══════════════════════════════════════════════════════
+//  BACKGROUND PARTICLE NETWORK
+// ═══════════════════════════════════════════════════════
+(function() {
+  const cv = document.getElementById('bgCanvas');
+  const cx = cv.getContext('2d');
+  let W, H, pts;
+  const NUM_PTS = 80, MAX_DIST = 140;
+
+  function resize() {
+    W = cv.width  = window.innerWidth;
+    H = cv.height = window.innerHeight;
+  }
+
+  function mkPts() {
+    pts = Array.from({length:NUM_PTS}, () => ({
+      x: Math.random()*W, y: Math.random()*H,
+      vx: (Math.random()-0.5)*0.4,
+      vy: (Math.random()-0.5)*0.4,
+      r: Math.random()*2+1,
+      col: ['#4285F4','#34A853','#EA4335','#FBBC05'][Math.floor(Math.random()*4)]
+    }));
+  }
+
+  function draw() {
+    cx.clearRect(0,0,W,H);
+    // gradient background
+    const g = cx.createLinearGradient(0,0,W,H);
+    g.addColorStop(0,'#0a0a1a'); g.addColorStop(0.5,'#0d1035'); g.addColorStop(1,'#0a0a1a');
+    cx.fillStyle = g; cx.fillRect(0,0,W,H);
+
+    // move points
+    pts.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > W) p.vx *= -1;
+      if (p.y < 0 || p.y > H) p.vy *= -1;
+    });
+
+    // draw edges
+    for (let i=0; i<pts.length; i++) {
+      for (let j=i+1; j<pts.length; j++) {
+        const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if (d < MAX_DIST) {
+          cx.beginPath();
+          cx.moveTo(pts[i].x, pts[i].y);
+          cx.lineTo(pts[j].x, pts[j].y);
+          cx.strokeStyle = `rgba(66,133,244,${(1-d/MAX_DIST)*0.18})`;
+          cx.lineWidth = 1;
+          cx.stroke();
+        }
+      }
+    }
+
+    // draw nodes
+    pts.forEach(p => {
+      cx.beginPath();
+      cx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      cx.fillStyle = p.col + '99';
+      cx.fill();
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', () => { resize(); mkPts(); });
+  resize(); mkPts(); draw();
+})();
+
+// ═══════════════════════════════════════════════════════
+//  SURFER VISUALIZER CANVAS  (original 20 pages as nodes)
+// ═══════════════════════════════════════════════════════
+const sCanvas = document.getElementById('surferCanvas');
+const sCx = sCanvas.getContext('2d');
+const VIS_IDS = [1,2,3,4,5,6, 7,8,9,10,11, 12,13,14,15,16, 17,18,19,20];
+
+// Node layout: four clusters arranged on canvas
+const NODE_LAYOUT = {
+  // Pizza cluster (top-left)
+  1:{x:90,y:60},  2:{x:160,y:40}, 3:{x:80,y:120},
+  4:{x:155,y:100},5:{x:225,y:60}, 6:{x:225,y:130},
+  // Cricket cluster (top-right)
+  7:{x:350,y:55}, 8:{x:430,y:40}, 9:{x:310,y:120},
+  10:{x:400,y:110},11:{x:470,y:105},
+  // Movie cluster (bottom-left)
+  12:{x:90,y:200},13:{x:165,y:180},14:{x:80,y:260},
+  15:{x:160,y:250},16:{x:235,y:215},
+  // Exam cluster (bottom-right)
+  17:{x:350,y:195},18:{x:430,y:175},19:{x:395,y:255},
+  20:{x:465,y:250}
+};
+
+const NODE_COLS = {
+  1:'#EA4335',2:'#EA4335',3:'#EA4335',4:'#EA4335',5:'#EA4335',6:'#EA4335',
+  7:'#34A853',8:'#34A853',9:'#34A853',10:'#34A853',11:'#34A853',
+  12:'#4285F4',13:'#4285F4',14:'#4285F4',15:'#4285F4',16:'#4285F4',
+  17:'#FBBC05',18:'#FBBC05',19:'#FBBC05',20:'#FBBC05'
+};
+
+const NODE_LABELS = {
+  1:'food-guide',2:'best-pizza',3:'canteen',4:'pizza-recipes',5:'cheap-eats',6:'pizza³',
+  7:'cricket-live',8:'ipl-fan',9:'cricket-coach',10:'cricket-history',11:'cricket³',
+  12:'bollywood',13:'movie-tickets',14:'film-club',15:'movie-songs',16:'free-movie³',
+  17:'exam-tips',18:'notes-share',19:'college-news',20:'exam³'
+};
+
+let surferScores = {};
+let visitCounts  = new Array(N).fill(0);
+let stepsDone    = 0;
+let surferPos    = 0;  // current page index (0-based)
+let animFrame    = null;
+let isRunning    = false;
+
+const TOTAL_STEPS = 100000;
+const CHUNK       = 2000;   // steps per animation frame
+const BOREDOM     = 0.15;
+
+// Dot animation
+let dotX = 260, dotY = 150, dotTargetX = 260, dotTargetY = 150;
+
+function getNodeXY(idx) {
+  const pid = pages[idx].id;
+  if (NODE_LAYOUT[pid]) return NODE_LAYOUT[pid];
+  return null;  // general page — off-canvas
+}
+
+function drawSurferCanvas() {
+  const W = sCanvas.width, H = sCanvas.height;
+  sCx.clearRect(0,0,W,H);
+
+  // Background
+  sCx.fillStyle = '#08081e';
+  sCx.fillRect(0,0,W,H);
+
+  // Cluster labels
+  sCx.font = 'bold 10px Arial'; sCx.textAlign = 'center';
+  sCx.fillStyle = '#EA433544'; sCx.fillText('🍕 PIZZA', 155, 15);
+  sCx.fillStyle = '#34A85344'; sCx.fillText('🏏 CRICKET', 390, 15);
+  sCx.fillStyle = '#4285F444'; sCx.fillText('🎬 MOVIE', 155, 290);
+  sCx.fillStyle = '#FBBC0544'; sCx.fillText('📝 EXAM', 410, 290);
+
+  // Draw edges between original pages
+  pages.slice(0,20).forEach(p => {
+    const from = NODE_LAYOUT[p.id];
+    if (!from) return;
+    p.links.forEach(tid => {
+      const to = NODE_LAYOUT[tid];
+      if (!to) return;
+      sCx.beginPath();
+      sCx.moveTo(from.x, from.y);
+      sCx.lineTo(to.x, to.y);
+      sCx.strokeStyle = NODE_COLS[p.id] + '33';
+      sCx.lineWidth = 1;
+      sCx.stroke();
+    });
+  });
+
+  // Max visits for scaling
+  const maxV = Math.max(...VIS_IDS.map(id => visitCounts[id-1]), 1);
+
+  // Draw nodes
+  VIS_IDS.forEach(pid => {
+    const pos = NODE_LAYOUT[pid];
+    if (!pos) return;
+    const v = visitCounts[pid-1];
+    const r = 8 + (v / maxV) * 18;   // radius grows with visits
+    const col = NODE_COLS[pid];
+
+    // Glow
+    if (v > 0) {
+      const grd = sCx.createRadialGradient(pos.x, pos.y, r*0.3, pos.x, pos.y, r*2.5);
+      grd.addColorStop(0, col + '44');
+      grd.addColorStop(1, col + '00');
+      sCx.beginPath(); sCx.arc(pos.x, pos.y, r*2.5, 0, Math.PI*2);
+      sCx.fillStyle = grd; sCx.fill();
+    }
+
+    // Circle
+    sCx.beginPath(); sCx.arc(pos.x, pos.y, r, 0, Math.PI*2);
+    sCx.fillStyle = col + 'cc'; sCx.fill();
+    sCx.strokeStyle = col; sCx.lineWidth = 1.5; sCx.stroke();
+
+    // Label
+    sCx.font = '9px Arial'; sCx.textAlign = 'center';
+    sCx.fillStyle = '#ffffff99';
+    sCx.fillText(NODE_LABELS[pid], pos.x, pos.y + r + 11);
+
+    // Visit count
+    if (v > 0) {
+      sCx.font = 'bold 8px Arial';
+      sCx.fillStyle = '#fff';
+      sCx.fillText(v > 999 ? (v/1000).toFixed(1)+'k' : v, pos.x, pos.y + 3);
+    }
+  });
+
+  // Surfer dot (smooth interpolation)
+  dotX += (dotTargetX - dotX) * 0.25;
+  dotY += (dotTargetY - dotY) * 0.25;
+
+  // Dot glow
+  const dg = sCx.createRadialGradient(dotX, dotY, 2, dotX, dotY, 16);
+  dg.addColorStop(0, '#ffffffcc');
+  dg.addColorStop(1, '#ffffff00');
+  sCx.beginPath(); sCx.arc(dotX, dotY, 16, 0, Math.PI*2);
+  sCx.fillStyle = dg; sCx.fill();
+
+  // Dot
+  sCx.beginPath(); sCx.arc(dotX, dotY, 5, 0, Math.PI*2);
+  sCx.fillStyle = '#ffffff'; sCx.fill();
+  sCx.strokeStyle = '#4285F4'; sCx.lineWidth = 2; sCx.stroke();
+}
+
+function updateLeaderboard() {
+  const top5 = [...pages]
+    .sort((a,b) => visitCounts[b.id-1] - visitCounts[a.id-1])
+    .slice(0,5);
+  const maxV = visitCounts[top5[0].id-1] || 1;
+  const medals = ['&#127945;','&#129352;','&#129353;','4','5'];
+  const lb = document.getElementById('lbList');
+  lb.innerHTML = top5.map((p,i) => {
+    const v = visitCounts[p.id-1];
+    const pct = (v/TOTAL_STEPS*100).toFixed(2);
+    const barW = Math.round(v/maxV*100);
+    return `<div class="lb-item">
+      <span class="lb-rank">${medals[i]}</span>
+      <span class="lb-url">${p.url}</span>
+      <span class="lb-score">${pct}%</span>
+      <div class="lb-bar-wrap"><div class="lb-bar" style="width:${barW}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function surferChunk() {
+  const end = Math.min(stepsDone + CHUNK, TOTAL_STEPS);
+
+  for (let i = stepsDone; i < end; i++) {
+    visitCounts[surferPos]++;
+    if (Math.random() < BOREDOM || pages[surferPos].links.length === 0) {
+      surferPos = Math.floor(Math.random() * N);
+    } else {
+      const lnk = pages[surferPos].links;
+      surferPos = lnk[Math.floor(Math.random() * lnk.length)] - 1;
+    }
+  }
+  stepsDone = end;
+
+  // Update dot target
+  const nodePos = getNodeXY(surferPos);
+  if (nodePos) { dotTargetX = nodePos.x; dotTargetY = nodePos.y; }
+  else          { dotTargetX = 260; dotTargetY = 150; }
+
+  // Update UI
+  const pct = Math.round(stepsDone / TOTAL_STEPS * 100);
+  document.getElementById('progBar').style.width = pct + '%';
+  document.getElementById('progPct').textContent = pct + '%';
+  document.getElementById('statSteps').textContent = stepsDone.toLocaleString();
+  document.getElementById('curVisit').textContent = pages[surferPos].url;
+
+  drawSurferCanvas();
+  updateLeaderboard();
+
+  if (stepsDone < TOTAL_STEPS) {
+    animFrame = requestAnimationFrame(surferChunk);
+  } else {
+    // Simulation done
+    isRunning = false;
+    surferScores = {};
+    pages.forEach((p,i) => { surferScores[p.id] = visitCounts[i] / TOTAL_STEPS; });
+
+    const total = Object.values(surferScores).reduce((a,b)=>a+b,0);
+    document.getElementById('surferStatus').textContent =
+      'Done! Sum = ' + (total*100).toFixed(1) + '%';
+    document.getElementById('surferBtn').disabled = false;
+    doSearch();  // refresh results if a search is showing
+  }
+}
+
+function startSurfer() {
+  if (isRunning) return;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  // Reset
+  visitCounts = new Array(N).fill(0);
+  stepsDone   = 0;
+  surferPos   = Math.floor(Math.random() * N);
+  isRunning   = true;
+  document.getElementById('surferBtn').disabled = true;
+  document.getElementById('surferStatus').textContent = 'Running…';
+  animFrame = requestAnimationFrame(surferChunk);
+}
+
+// Draw static canvas immediately
+drawSurferCanvas();
+
+// ═══════════════════════════════════════════════════════
+//  WORD COUNT HELPERS
+// ═══════════════════════════════════════════════════════
+function countWord(text, word) {
+  const m = text.match(new RegExp('\\b' + word + '\\b', 'gi'));
+  return m ? m.length : 0;
+}
+function highlight(text, word) {
+  return text.replace(new RegExp('(\\b' + word + '\\b)', 'gi'), '<span class="hl">$1</span>');
+}
+function rankIcon(i) {
+  if (i===0) return '<span class="gold">&#127945; #1</span>';
+  if (i===1) return '<span class="silver">&#129352; #2</span>';
+  if (i===2) return '<span class="bronze">&#129353; #3</span>';
+  return '#'+(i+1);
+}
+
+// ═══════════════════════════════════════════════════════
+//  SEARCH & RENDER
+// ═══════════════════════════════════════════════════════
+function doSearch() {
+  const raw  = document.getElementById('searchBox').value.trim();
+  const word = raw.toLowerCase();
+  const out  = document.getElementById('results');
+  const meta = document.getElementById('resultsMeta');
+  out.innerHTML = '';
+
+  if (!word) { meta.style.display='none'; return; }
+
+  const t0 = performance.now();
+  const matched = pages.filter(p => countWord(p.text, word) > 0);
+  document.getElementById('statMatched').textContent = matched.length;
+
+  if (matched.length === 0) {
+    meta.style.display = 'flex';
+    document.getElementById('resultsMetaTxt').textContent = 'No results for "' + raw + '"';
+    out.innerHTML = '<div class="empty"><span class="empty-emoji">&#129300;</span>No pages about <strong>' + raw + '</strong> in the mini web. Try pizza or cricket!</div>';
+    return;
+  }
+
+  const t1 = performance.now();
+  meta.style.display = 'flex';
+  document.getElementById('resultsMetaTxt').innerHTML =
+    'Found <strong>' + matched.length + ' pages</strong> for "<strong>' + raw + '</strong>" &bull; searched in ' + (t1-t0).toFixed(1) + ' ms';
+
+  const oldRanked  = [...matched].sort((a,b) => countWord(b.text,word)-countWord(a.text,word)||a.id-b.id);
+  const surfRanked = [...matched].sort((a,b) => (surferScores[b.id]||0)-(surferScores[a.id]||0)||a.id-b.id);
+
+  // Max scores for bar scaling
+  const maxWC   = countWord(oldRanked[0].text, word) || 1;
+  const maxSurf = (surferScores[surfRanked[0].id] || 0.001);
+
+  const L = document.createElement('div');
+  const R = document.createElement('div');
+
+  L.innerHTML = `<div class="col-header old">
+    <span>&#128220;</span><h2>Old Way &mdash; 1997</h2>
+    <span class="badge badge-old">${matched.length} results</span>
+  </div>`;
+  R.innerHTML = `<div class="col-header surf">
+    <span>&#127940;</span><h2>Surfer Way &mdash; 1998</h2>
+    <span class="badge badge-surf">${matched.length} results</span>
+  </div>`;
+
+  oldRanked.forEach((p, i) => {
+    const wc  = countWord(p.text, word);
+    const pct = Math.round(wc / maxWC * 100);
+    const del = Math.min(i * 40, 400);
+    L.innerHTML += `<div class="card old-card" style="animation-delay:${del}ms">
+      <div class="card-rank">${rankIcon(i)}</div>
+      <div class="card-url"><span class="card-url-icon">&#127760;</span>${p.url}</div>
+      <div class="card-text">${highlight(p.text, word)}</div>
+      <div class="score-bar-wrap"><div class="score-bar old-bar" style="width:${pct}%"></div></div>
+      <div class="card-footer" style="margin-top:8px;">
+        <span class="score-chip old-score">&#128290; ${wc} word${wc>1?'s':''}</span>
+        <span class="meta-chip">&#128279;in: ${linksIn[p.id]}</span>
+        <span class="meta-chip">&#128279;out: ${p.links.length}</span>
+        <span class="meta-chip">id: ${p.id}</span>
+      </div>
+    </div>`;
+  });
+
+  surfRanked.forEach((p, i) => {
+    const sc  = surferScores[p.id] || 0;
+    const pct = sc / maxSurf * 100;
+    const del = Math.min(i * 40, 400);
+    R.innerHTML += `<div class="card surf-card" style="animation-delay:${del}ms">
+      <div class="card-rank">${rankIcon(i)}</div>
+      <div class="card-url"><span class="card-url-icon">&#127760;</span>${p.url}</div>
+      <div class="card-text">${highlight(p.text, word)}</div>
+      <div class="score-bar-wrap"><div class="score-bar surf-bar" style="width:${pct.toFixed(1)}%"></div></div>
+      <div class="card-footer" style="margin-top:8px;">
+        <span class="score-chip surf-score">&#127940; ${(sc*100).toFixed(2)}%</span>
+        <span class="meta-chip">&#128279;in: ${linksIn[p.id]}</span>
+        <span class="meta-chip">&#128279;out: ${p.links.length}</span>
+        <span class="meta-chip">id: ${p.id}</span>
+      </div>
+    </div>`;
+  });
+
+  out.appendChild(L);
+  out.appendChild(R);
+}
+
+function quickSearch(w) { document.getElementById('searchBox').value=w; doSearch(); }
+document.getElementById('searchBox').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
+
+// ── Start surfer on page load ──
+startSurfer();
+
+</script>
+</body>
+</html>
